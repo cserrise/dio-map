@@ -18,7 +18,14 @@ public class Label {
 		this.entities = new HashSet<Entity>();
 	}
 	
-	
+	public Label(ArrayList<Word> words) {
+		this.words = new ArrayList<Word>();
+		for (Word word : words) {
+			this.words.add(word);
+			word.addLabel(this);
+		}	
+		this.entities = new HashSet<Entity>();
+	}
 	
 	
 	public void addEntity(Entity entity) {
