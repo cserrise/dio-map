@@ -1,6 +1,16 @@
 package de.unima.ki.dio.entities;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
+
+import org.semanticweb.owlapi.apibinding.OWLManager;
+import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.model.OWLOntologyCreationException;
+import org.semanticweb.owlapi.model.OWLOntologyManager;
+
+import de.unima.ki.dio.Settings;
 
 public class Ontology {
 
@@ -17,6 +27,32 @@ public class Ontology {
 		Word.resetStore();
 		// construct words, labels, concepts as shown in the usage example and add the concepts to the ontology
 		// TODO implement this
+		
+		OWLOntologyManager manager;
+		OWLOntology ontologyOWL = null;
+		manager = OWLManager.createOWLOntologyManager();
+		
+		try {
+			ontologyOWL = manager.loadOntologyFromOntologyDocument(new File(filepath));
+		} catch (OWLOntologyCreationException e) {
+			e.printStackTrace();
+		}
+		
+		//add classes
+		for(OWLClass classy:ontologyOWL.getClassesInSignature()){
+			String[] tokens = classy.getIRI().getFragment().split(Settings.REGEX_FOR_SPLIT);
+			ArrayList<Word> words = new ArrayList<Word>();
+			
+			for(String token:tokens){
+				//TODO add wordtype recognition
+				words.add(Word.createWord(token));
+			}
+			
+			Label label = new Label(words);
+			Concept concept = new Concept(classy.getIRI().toString(), label);
+			this.addConcept(concept);
+		}
+		
 		
 	}
 	
