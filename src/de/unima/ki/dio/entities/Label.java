@@ -52,6 +52,15 @@ public class Label {
 		}
 		return rep;
 	}
+	
+	public ArrayList<String> getLMToken(String ontId) {
+		ArrayList<String> tokens = new ArrayList<String>();
+		for (int i = 0; i < this.words.size(); i++) {
+			tokens.add(this.words.get(i).getMLId(ontId));
+			
+		}
+		return tokens;
+	}
 
 
 }

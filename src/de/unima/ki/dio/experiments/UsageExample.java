@@ -7,13 +7,16 @@ import de.unima.ki.dio.entities.Ontology;
 import de.unima.ki.dio.entities.Word;
 import de.unima.ki.dio.entities.WordType;
 import de.unima.ki.dio.exceptions.AlignmentException;
+import de.unima.ki.dio.exceptions.DioException;
+import de.unima.ki.dio.matcher.MarkovMatcher;
+import de.unima.ki.dio.matcher.Matcher;
 import de.unima.ki.dio.matcher.SimpleMatcher;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 
 public class UsageExample {
 
 
-	public static void main(String[] args) throws AlignmentException {
+	public static void main(String[] args) throws DioException {
 		
 		Ontology o1 = new Ontology(); 
 		
@@ -108,8 +111,11 @@ public class UsageExample {
 
 		System.out.println("Ontology 2: \n" + o2);
 		
-		SimpleMatcher sm = new SimpleMatcher();
-		Alignment alignment = sm.match(o1, o2);
+		// Matcher m = new SimpleMatcher();
+		Matcher m = new MarkovMatcher();
+		
+		
+		Alignment alignment = m.match(o1, o2);
 		
 		alignment.write("exp/out.txt");
 		System.out.println(alignment);
