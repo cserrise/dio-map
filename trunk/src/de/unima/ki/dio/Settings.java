@@ -9,6 +9,8 @@ public class Settings {
 
 	public static final double DISCO_THRESHOLD = 0.3;
 	
+	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
+	
 	public static final String ROCKIT_ENDPOINT = "xxxx";
 	
 	
