@@ -2,6 +2,7 @@ package de.unima.ki.dio.matcher;
 
 import java.util.HashSet;
 
+import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.entities.*;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Correspondence;
@@ -21,6 +22,7 @@ public class SimpleMatcher implements Matcher {
 	public Alignment match(Ontology ont1, Ontology ont2) {
 		
 		WordSimilarity discoWSim = new DiscoWSim();
+		WordSimilarity lshtein = new LevenstheinWSim();
 		
 		Correspondence c;
 		Alignment ali = new Alignment();
@@ -32,9 +34,17 @@ public class SimpleMatcher implements Matcher {
 					for (Label l2 : e2.getLabels()) {
 						if (l1.getNumberOfWords() == l2.getNumberOfWords()) {
 							double currentSim = 1.0;
-							for (int i = 0; i < l1.getNumberOfWords(); i++) {								
-								currentSim *= discoWSim.getSimilarity(l1.getWord(i), l2.getWord(i));
+							for (int i = 0; i < l1.getNumberOfWords(); i++) {
+								currentSim *= lshtein.getSimilarity(l1.getWord(i), l2.getWord(i));
+//								System.out.println(l1.getWord(i) + "  " + l2.getWord(i) + "  " + currentSim);
 							}
+							if(currentSim < Settings.LEVENSHTEIN_THRESHOLD){
+								currentSim = 1.0;
+								for (int i = 0; i < l1.getNumberOfWords(); i++) {								
+									currentSim *= discoWSim.getSimilarity(l1.getWord(i), l2.getWord(i));
+								}
+							}
+
 							if (currentSim > bestSim) {
 								bestSim = currentSim;
 							}

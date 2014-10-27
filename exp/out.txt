@@ -20,7 +20,7 @@
 	<Cell>
 		<entity1 rdf:resource="http://o1#Document"/>
 		<entity2 rdf:resource="http://o2#Document"/>
-		<measure rdf:datatype="xsd:float">1.0</measure>
+		<measure rdf:datatype="xsd:float">0.8888888955116272</measure>
 		<relation>=</relation>
 	</Cell>
 </map>

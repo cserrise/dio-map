@@ -91,7 +91,7 @@ public class UsageExample {
 		concept = new Concept("http://o2#FirstAuthor", label);
 		o2.addConcept(concept);
 		
-		label = new Label(Word.createWord("Document", WordType.NOUN));
+		label = new Label(Word.createWord("Documents", WordType.NOUN));
 		concept = new Concept("http://o2#Document", label);
 		o2.addConcept(concept);
 		

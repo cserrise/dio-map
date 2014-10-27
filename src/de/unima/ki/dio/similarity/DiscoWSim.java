@@ -25,7 +25,7 @@ public class DiscoWSim implements WordSimilarity {
 
 	public double getSimilarity(Word w1, Word w2) {
 		try {
-			if (w1.getToken().equals(w2.getToken())) {
+			if (w1.getToken().equalsIgnoreCase(w2.getToken())) {
 				return 1.0d;
 			}
 			else {
