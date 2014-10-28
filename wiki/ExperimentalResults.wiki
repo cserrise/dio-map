@@ -2,7 +2,7 @@
 
 = Impact of Using Distributional Semantics =
 
-We implemented a simple matcher that only matches concepts with labels of equal size. This matcher creates a match if the words that occur in the label at the same position are equals, very similar according the levensthein (just for typos or spelling variants), or similar according the 2nd order similarity. For the latter we experimented with different thresholds (0.2^2 , 0.3^2 , 0.4^2 , 0.5^2 , 0.6^2 , 0.7^2 ). Any value higher lower than 0.6^2 was never better than 0.6 w.r.t. recall. That means we could never find any additional correct correspondences, while precision significantly dropped. When going from 0.6^2 to 0.7^2, we lost some interesting correspondences. It seems that 0.6^2 is a good choice for an recall oriented approach.
+We implemented a simple matcher that only matches concepts with labels of equal size. This matcher creates a match if the words that occur in the label at the same position are equals, very similar according the levensthein (just for typos or spelling variants), or similar according the 2nd order similarity. For the latter we experimented with different thresholds (0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 ). Any value higher lower than 0.6 was never better than 0.6 w.r.t. recall. That means we could never find any additional correct correspondences, while precision significantly dropped. When going from 0.6 to 0.7, we lost some interesting correspondences. It seems that 0.6 is a good choice for an recall oriented approach.
 
 
 = Results for t=0.5^2 =
@@ -36,3 +36,5 @@ We implemented a simple matcher that only matches concepts with labels of equal 
   * 3 refers to 2 plus using a greedy 1:1 extraction
   * + denotes the number of additionally found correct correspondences comparing 1 and 2
   * - denotes the number of additionally found incorrect correspondences comparing 1 and 2
+
+Note that the listed thresholds need are squared, so 0.6 refers to 0.36 actually.
