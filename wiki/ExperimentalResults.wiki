@@ -1,11 +1,13 @@
 #summary Experimental results related to baselines
 
-= Introduction =
+= Impact of Using Distributional Semantics =
 
-Add your content here.
+We implemented a simple matcher that only matches concepts with labels of equal size. This matcher creates a match if the words that occur in the label at the same position are equals, very similar according the levensthein (just for typos or spelling variants), or similar according the 2nd order similarity. For the latter we experimented with different thresholds (0.2^2, 0.3^2,0.4^2, 0.5^2, 0.6^2, 0.7^2). Any value higher lower than 0.6^2 was never better than 0.6 w.r.t. recall. That means we could never find any additional correct correspondences, while precision significantly dropped. When going from 0.6^2 to 0.7^2, we lost some interesting correspondences. It seems that 0.6^2 is a good choice for an recall oriented approach.
 
 
-= Details =
+= Results for t =
+
+||*source* || 	*target* || 	*P* || 	*R* || 	*F* || *P* || 	*R* || 	*F* ||*P* || 	*R* || 	*F* || *+* || *-*||
 
 ||cmt || 	conference || 	0.667 || 	0.267 || 	0.381 || 	0.417 || 	0.333 || 	0.37 || 	0.444 || 	0.267 || 	0.333 || 	1 || 	5 || 
 ||cmt || 	confof || 	0.8 || 	0.25 || 	0.381 || 	0.571 || 	0.25 || 	0.348 || 	0.667 || 	0.25 || 	0.364 || 	0 || 	2 || 
