@@ -5,10 +5,9 @@
 We implemented a simple matcher that only matches concepts with labels of equal size. This matcher creates a match if the words that occur in the label at the same position are equals, very similar according the levensthein (just for typos or spelling variants), or similar according the 2nd order similarity. For the latter we experimented with different thresholds (0.2^2, 0.3^2,0.4^2, 0.5^2, 0.6^2, 0.7^2). Any value higher lower than 0.6^2 was never better than 0.6 w.r.t. recall. That means we could never find any additional correct correspondences, while precision significantly dropped. When going from 0.6^2 to 0.7^2, we lost some interesting correspondences. It seems that 0.6^2 is a good choice for an recall oriented approach.
 
 
-= Results for t =
+= Results for t=0.5^2 =
 
-||*source* || 	*target* || 	*P* || 	*R* || 	*F* || *P* || 	*R* || 	*F* ||*P* || 	*R* || 	*F* || *+* || *-*||
-
+||*source* || 	*target* || 	*P1* || 	*R1* || 	*F1* || *P2* || 	*R2* || 	*F2* ||*P3* || 	*R3* || 	*F3* || *+* || *-*||
 ||cmt || 	conference || 	0.667 || 	0.267 || 	0.381 || 	0.417 || 	0.333 || 	0.37 || 	0.444 || 	0.267 || 	0.333 || 	1 || 	5 || 
 ||cmt || 	confof || 	0.8 || 	0.25 || 	0.381 || 	0.571 || 	0.25 || 	0.348 || 	0.667 || 	0.25 || 	0.364 || 	0 || 	2 || 
 ||cmt || 	edas || 	1 || 	0.615 || 	0.762 || 	0.8 || 	0.615 || 	0.696 || 	1 || 	0.615 || 	0.762 || 	0 || 	2 || 
@@ -31,3 +30,10 @@ We implemented a simple matcher that only matches concepts with labels of equal 
 ||ekaw || 	sigkdd || 	1 || 	0.636 || 	0.778 || 	0.7 || 	0.636 || 	0.667 || 	0.7 || 	0.636 || 	0.667 || 	0 || 	3 || 
 ||iasted || 	sigkdd || 	0.923 || 	0.8 || 	0.857 || 	0.6 || 	0.8 || 	0.686 || 	0.857 || 	0.8 || 	0.828 || 	0 || 	7 || 
 ||  || AVG	 || 	0.894 || 	0.505 || 	0.632 || 	0.61 || 	0.523 || 	0.545 || 	0.747 || 	0.52 || 	0.598 || 	7 || 	85 || 
+
+  * 1 refers to using no 2nd order similarity (i.e. string equivalence and string similarity with a very high threshold.
+  * 2 refers to using additionally 2nd order similarity
+  * 3 refers to 2 plus using a greedy 1:1 extraction
+  * + denotes the number of additionally found correct correspondences comparing 1 and 2
+  * - denotes the number of additionally found incorrect correspondences comparing 1 and 2
+
