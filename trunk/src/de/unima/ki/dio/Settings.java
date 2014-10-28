@@ -7,14 +7,16 @@ public class Settings {
 	
 	public static final String DISCO_DIRECTORY = "res/enwiki-20130403-sim-lemma-mwl-lc/";
 
-	
-	public static final double DISCO_THRESHOLD = 0.3;
+	// everything above 0.6 does not give anymore
+	public static final double DISCO_THRESHOLD = 0.6;
 	
 	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
 	
 	public static final String ROCKIT_ENDPOINT = "xxxx";
 	
 	public static final String TEMP_DIR = "tmp/";
+
+	public static final String OWL_NS = "http://www.w3.org/2002/07/owl";
 	
 	
 	

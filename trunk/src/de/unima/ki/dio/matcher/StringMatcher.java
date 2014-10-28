@@ -14,7 +14,7 @@ import de.unima.ki.dio.similarity.*;
  * The resulting mapping is then filtered with a greedy 1:1 approach.
  *
  */
-public class SimpleMatcher implements Matcher {
+public class StringMatcher implements Matcher {
 
 	public Alignment match(Ontology ont1, Ontology ont2) {
 		
@@ -34,10 +34,8 @@ public class SimpleMatcher implements Matcher {
 							double lsim = 0.0;
 							double dsim = 0.0;
 							for (int i = 0; i < l1.getNumberOfWords(); i++) {
-								lsim = lshtein.getSimilarity(l1.getWord(i), l2.getWord(i));
-								// lsim = 0.0d;
-								dsim = discoWSim.getSimilarity(l1.getWord(i), l2.getWord(i));
-								currentSim *= Math.max(lsim, dsim);
+								lsim = lshtein.getSimilarity(l1.getWord(i), l2.getWord(i));								
+								currentSim *= lsim;
 //								System.out.println(l1.getWord(i) + "  " + l2.getWord(i) + "  " + currentSim);
 							}
 
