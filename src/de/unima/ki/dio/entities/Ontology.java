@@ -40,6 +40,10 @@ public class Ontology {
 		
 		//add classes
 		for(OWLClass classy:ontologyOWL.getClassesInSignature()){
+			if (classy.getIRI().toString().startsWith(Settings.OWL_NS)) {
+				continue;
+			}
+			
 			String[] tokens = classy.getIRI().getFragment().split(Settings.REGEX_FOR_SPLIT);
 			ArrayList<Word> words = new ArrayList<Word>();
 			

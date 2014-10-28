@@ -1,6 +1,7 @@
 package de.unima.ki.dio.similarity;
 
 import uk.ac.shef.wit.simmetrics.similaritymetrics.Levenshtein;
+import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.entities.Word;
 
 public class LevenstheinWSim implements WordSimilarity {
@@ -13,7 +14,9 @@ public class LevenstheinWSim implements WordSimilarity {
 		// TODO implement this function, it should return the similaroity score if it above a threshold defined in the settings
 		// and it
 		Levenshtein lev = new Levenshtein();
-		return (double)lev.getSimilarity(w1.getToken().toLowerCase(), w2.getToken().toLowerCase());
+		double val = (double)lev.getSimilarity(w1.getToken().toLowerCase(), w2.getToken().toLowerCase());
+		val = (val >= Settings.LEVENSHTEIN_THRESHOLD) ? val : 0.0;
+		return val;
 	}
 	
 	
