@@ -7,16 +7,21 @@ public class Settings {
 	
 	public static final String DISCO_DIRECTORY = "res/enwiki-20130403-sim-lemma-mwl-lc/";
 
-	// everything above 0.6 does not give anymore
-	public static final double DISCO_THRESHOLD = 0.6;
-	
+	// similarity thresholds
+	public static final double DISCO_THRESHOLD = 0.8;
 	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
-	
-	public static final String ROCKIT_ENDPOINT = "xxxx";
 	
 	public static final String TEMP_DIR = "tmp/";
 
 	public static final String OWL_NS = "http://www.w3.org/2002/07/owl";
+	
+	
+	// settings relavant for rockit
+	public static final String ROCKIT_ENDPOINT = "xxxx";
+	public static final double ROCKIT_GAP = 0.0000000001; 
+	public static final String ROCKIT_MODELFILEPATH = "mod/model2.ml";
+	public static final String ROCKIT_EVIDENCEFILEPATH =  TEMP_DIR + "evidence.db";
+	public static final String ROCKIT_LOCALOUT =  TEMP_DIR + "out.db";
 	
 	
 	

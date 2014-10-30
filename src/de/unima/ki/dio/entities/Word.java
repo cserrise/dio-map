@@ -19,7 +19,7 @@ public class Word {
 	 * @param token The string.
 	 */
 	private Word(String token) {
-		this.token = token;
+		this.token = token.toLowerCase();
 		this.type = WordType.UNKNOWN;
 		this.labels = new HashSet<Label>();
 	}
@@ -133,7 +133,7 @@ public class Word {
 	 * @return The string for which this word is a wrapper.
 	 */
 	public String getMLId(String ontId) {
-		return ontId + ":" + this.token;
+		return ontId + "#" + this.token;
 	}
 	
 	
