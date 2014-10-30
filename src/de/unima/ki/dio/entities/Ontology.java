@@ -9,6 +9,10 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
+import org.semanticweb.owlapi.reasoner.NodeSet;
+import org.semanticweb.owlapi.reasoner.OWLReasoner;
+import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
+import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 
 import de.unima.ki.dio.Settings;
 
@@ -31,12 +35,15 @@ public class Ontology {
 		OWLOntologyManager manager;
 		OWLOntology ontologyOWL = null;
 		manager = OWLManager.createOWLOntologyManager();
+		OWLReasonerFactory reasonerFactory = new StructuralReasonerFactory();
 		
 		try {
 			ontologyOWL = manager.loadOntologyFromOntologyDocument(new File(filepath));
 		} catch (OWLOntologyCreationException e) {
 			e.printStackTrace();
 		}
+		OWLReasoner reasoner = reasonerFactory.createReasoner(ontologyOWL);
+		
 		
 		//add classes
 		for(OWLClass classy:ontologyOWL.getClassesInSignature()){
@@ -44,20 +51,38 @@ public class Ontology {
 				continue;
 			}
 			
-			String[] tokens = classy.getIRI().getFragment().split(Settings.REGEX_FOR_SPLIT);
-			ArrayList<Word> words = new ArrayList<Word>();
 			
-			for(String token:tokens){
-				//TODO add wordtype recognition
-				words.add(Word.createWord(token));
-			}
+			ArrayList<Word> words = getLabelAsWordList(classy);
 			
 			Label label = new Label(words);
 			Concept concept = new Concept(classy.getIRI().toString(), label);
+			
+			//add disjointconcepts and subconcepts to concept
+			System.out.println("CLASS " + classy.getIRI().toString());
+			for(OWLClass disjointClass:reasoner.getDisjointClasses(classy).getFlattened()){
+				if(disjointClass.getIRI().toString().equals(classy.getIRI().toString())){
+					continue;
+				}
+				Label disjointLabel = new Label(getLabelAsWordList(disjointClass));
+				Concept disjointConcept = new Concept(disjointClass.getIRI().toString(), disjointLabel);
+				System.out.println("DISJOINT:" + disjointConcept.toString());
+				concept.addDisjointConcept(disjointConcept);
+			}
+			
+
+			for(OWLClass subClass:reasoner.getSubClasses(classy, false).getFlattened()){
+				if (subClass.getIRI().toString().startsWith(Settings.OWL_NS)) {
+					continue;
+				}
+				Label subClassLabel = new Label(getLabelAsWordList(subClass));
+				Concept subConcept = new Concept(subClass.getIRI().toString(), subClassLabel);
+				System.out.println("SUBCONCEPT" + subConcept.toString());
+				concept.addSubConcept(subConcept);
+			}
+			
 			this.addConcept(concept);
 		}
-		
-		
+
 	}
 	
 	/**
@@ -107,7 +132,14 @@ public class Ontology {
 	}
 	
 	
-	
+	private ArrayList<Word> getLabelAsWordList(OWLClass classy){
+		ArrayList<Word> words = new ArrayList<Word>();
+		String[] tokens = classy.getIRI().getShortForm().toString().split(Settings.REGEX_FOR_SPLIT);
+		for(String token:tokens){
+			words.add(Word.createWord(token));
+		}
+		return words;
+	}
 	
 
 }

@@ -38,7 +38,6 @@ public class SimpleMatcher implements Matcher {
 								// lsim = 0.0d;
 								dsim = discoWSim.getSimilarity(l1.getWord(i), l2.getWord(i));
 								currentSim *= Math.max(lsim, dsim);
-//								System.out.println(l1.getWord(i) + "  " + l2.getWord(i) + "  " + currentSim);
 							}
 
 							if (currentSim > bestSim) {
