@@ -51,21 +51,18 @@ public class Ontology {
 				continue;
 			}
 			
-			
 			ArrayList<Word> words = getLabelAsWordList(classy);
-			
 			Label label = new Label(words);
 			Concept concept = new Concept(classy.getIRI().toString(), label);
 			
 			//add disjointconcepts and subconcepts to concept
-			System.out.println("CLASS " + classy.getIRI().toString());
+			
 			for(OWLClass disjointClass:reasoner.getDisjointClasses(classy).getFlattened()){
 				if(disjointClass.getIRI().toString().equals(classy.getIRI().toString())){
 					continue;
 				}
 				Label disjointLabel = new Label(getLabelAsWordList(disjointClass));
 				Concept disjointConcept = new Concept(disjointClass.getIRI().toString(), disjointLabel);
-				System.out.println("DISJOINT:" + disjointConcept.toString());
 				concept.addDisjointConcept(disjointConcept);
 			}
 			
@@ -76,7 +73,6 @@ public class Ontology {
 				}
 				Label subClassLabel = new Label(getLabelAsWordList(subClass));
 				Concept subConcept = new Concept(subClass.getIRI().toString(), subClassLabel);
-				System.out.println("SUBCONCEPT" + subConcept.toString());
 				concept.addSubConcept(subConcept);
 			}
 			
@@ -134,7 +130,7 @@ public class Ontology {
 	
 	private ArrayList<Word> getLabelAsWordList(OWLClass classy){
 		ArrayList<Word> words = new ArrayList<Word>();
-		String[] tokens = classy.getIRI().getShortForm().toString().split(Settings.REGEX_FOR_SPLIT);
+		String[] tokens = classy.getIRI().getFragment().split(Settings.REGEX_FOR_SPLIT);
 		for(String token:tokens){
 			words.add(Word.createWord(token));
 		}
