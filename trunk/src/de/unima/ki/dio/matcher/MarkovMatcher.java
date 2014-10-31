@@ -118,8 +118,9 @@ public class MarkovMatcher implements Matcher {
 		Alignment alignment = new Alignment();
 		RemoteRockit rockit = new RemoteRockit(Settings.ROCKIT_MODELFILEPATH, Settings.ROCKIT_EVIDENCEFILEPATH);
 		RockitResult rr = rockit.run();
-		ArrayList<String[]> ce = rr.getAtomsOfPredicate("conceptEquiv");
 		
+		ArrayList<String[]> ce = rr.getAtomsOfPredicate("conceptEquiv");
+		System.out.println("Markov Matcher Objective: " + rr.getObjective());
 		for (String[] values : ce) {
 			Correspondence c = new Correspondence(values[0], values[1]);
 			alignment.add(c);
