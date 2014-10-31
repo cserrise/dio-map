@@ -1,0 +1,104 @@
+Actual testcase minitest1 ont1 / ont2
+======================================
+
+conceptEquiv: http://www.test2.org#AcceptedPaper, http://www.test1.org#AcceptedPaper
+conceptEquiv: http://www.test2.org#RejectedPaper, http://www.test1.org#RejectedPaper
+conceptEquiv: http://www.test2.org#Conference, http://www.test1.org#Conference
+conceptEquiv: http://www.test2.org#Particpant, http://www.test1.org#ConferenceParticipant
+conceptEquiv: http://www.test2.org#Fee, http://www.test1.org#ConferenceFee
+conceptEquiv: http://www.test2.org#Paper, http://www.test1.org#ConferencePaper
+
+= 6 * 0.5 = 3.0
+
+
+wordEquiv: 1#conference, 2#conference
+wordEquiv: 1#particpant, 2#participant
+wordEquiv: 1#fee, 2#fee
+wordEquiv: 1#accepted, 2#accepted
+wordEquiv: 1#paper, 2#paper
+wordEquiv: 1#rejected, 2#rejected
+
+= 5 * 1 + 0.9 = 5.9
+
+
+blind2: 2#conference
+
+= -1.1 * 1 = -1.1
+
+SCORE = 3.0 + 5.9 -1.1 =~ 7.8
+SCORE ASSUMING THAT ONLY TWO CONCEPTS HAVE "conference" PREFIX: 2.5 + 4.9 - 1.1 ~= 6.3
+
+What would be the score if "conference" would not set to be blind?
+====================================================================
+
+conceptEquiv: http://www.test2.org#AcceptedPaper, http://www.test1.org#AcceptedPaper
+conceptEquiv: http://www.test2.org#RejectedPaper, http://www.test1.org#RejectedPaper
+conceptEquiv: http://www.test2.org#Conference, http://www.test1.org#Conference
+
+= 3 * 0.5 = 1.5
+
+wordEquiv: 1#conference, 2#conference
+wordEquiv: 1#particpant, 2#participant
+wordEquiv: 1#fee, 2#fee
+wordEquiv: 1#accepted, 2#accepted
+wordEquiv: 1#paper, 2#paper
+wordEquiv: 1#rejected, 2#rejected
+
+= 5 * 1 + 0.9 = 5.9
+
+no blindness
+
+SCORE = 5.9 + 1.5 ~= 7.4
+SCORE ASSUMING THAT ONLY TWO CONCEPTS HAVE "conference" PREFIX: 1.5 + 4.9 ~= 6.4
+
+=> Set + score for generating corresppndences higher
+
+Genetic Example
+===============
+
+
+
+A  XA
+B  XB
+C  XC
+
+-------------
+
+blind:        -1.1
+similar:      +1.0 (in trivial cases)
+conceptEquiv: +0.5
+
+       blind    non-blind
+XA      +0.4      +1.0        
+XAB     +1.9      +2.0     
+XABC    +3.4      +3.0
+
+---------------
+
+blind:        -0.8
+similar:      +1.0 (in trivial cases)
+conceptEquiv: +0.5
+
+
+       blind    non-blind
+XA      +0.7      +1.0        
+XAB     +2.2      +2.0     
+XABC    +3.7      +3.0
+
+Impact of the blind=-0.8 / conceptEquiv=0.5 setting
+===================================================
+
+cmt	sigkdd	Markov Matcher Objective: 14.5
+1.000	0.583	0.737	1.000	0.667	0.800 => -6.3% F-measure
+conference	confof	Markov Matcher Objective: 23.03333337307
+0.900	0.600	0.720	0.875	0.467	0.609 =>  +11.1% F-measure
+
+
+
+
+
+
+
+
+
+
