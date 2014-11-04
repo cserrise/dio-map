@@ -53,7 +53,26 @@ public class Label {
 		return rep;
 	}
 	
-	public ArrayList<String> getLMToken(String ontId) {
+	/**
+	* Builds the raw string, which is the simple concatenation of words, and returns it.
+	* 
+	* @return The raw string.
+	*/
+	public String toRawString() {
+		String rep = "";
+		for (int i = 0; i < this.getNumberOfWords(); i++) {
+			rep += this.getWord(i);  
+			
+		}
+		return rep;
+	}
+	
+	
+	public String getMLLabel(String ontId) {
+		return "L" + ontId + "#" + this.toRawString();
+	}
+	
+	public ArrayList<String> getMLWords(String ontId) {
 		ArrayList<String> tokens = new ArrayList<String>();
 		for (int i = 0; i < this.words.size(); i++) {
 			tokens.add(this.words.get(i).getMLId(ontId));

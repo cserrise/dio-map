@@ -8,7 +8,7 @@ public class Settings {
 	public static final String DISCO_DIRECTORY = "res/enwiki-20130403-sim-lemma-mwl-lc/";
 
 	// similarity thresholds
-	public static final double DISCO_THRESHOLD = 0.8;
+	public static final double DISCO_THRESHOLD = 0.6;
 	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
 	
 	public static final String TEMP_DIR = "tmp/";
@@ -19,9 +19,13 @@ public class Settings {
 	// settings relavant for rockit
 	public static final String ROCKIT_ENDPOINT = "xxxx";
 	public static final double ROCKIT_GAP = 0.0000000001; 
-	public static final String ROCKIT_MODELFILEPATH = "mod/model2.ml";
+	public static final String ROCKIT_MODELFILEPATH = "mod/model_beta1.ml";
 	public static final String ROCKIT_EVIDENCEFILEPATH =  TEMP_DIR + "evidence.db";
 	public static final String ROCKIT_LOCALOUT =  TEMP_DIR + "out.db";
+
+	public static final double MALUS_FOR_PLURALS_SIMILIARITY = 0.01;
+
+	public static final int MAX_NUM_OF_WORDS_IN_LABEL = 3;
 	
 	
 	

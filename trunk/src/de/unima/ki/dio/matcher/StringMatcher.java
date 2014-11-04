@@ -18,7 +18,6 @@ public class StringMatcher implements Matcher {
 
 	public Alignment match(Ontology ont1, Ontology ont2) {
 		
-		WordSimilarity discoWSim = new DiscoWSim();
 		WordSimilarity lshtein = new LevenstheinWSim();
 		
 		Correspondence c;
@@ -32,18 +31,14 @@ public class StringMatcher implements Matcher {
 						if (l1.getNumberOfWords() == l2.getNumberOfWords()) {
 							double currentSim = 1.0;
 							double lsim = 0.0;
-							double dsim = 0.0;
 							for (int i = 0; i < l1.getNumberOfWords(); i++) {
 								lsim = lshtein.getSimilarity(l1.getWord(i), l2.getWord(i));								
 								currentSim *= lsim;
-//								System.out.println(l1.getWord(i) + "  " + l2.getWord(i) + "  " + currentSim);
 							}
-
 							if (currentSim > bestSim) {
 								bestSim = currentSim;
 							}
 						}
-						
 					}				
 					
 				}
@@ -54,13 +49,7 @@ public class StringMatcher implements Matcher {
 			}			
 			
 		}
-
-	
-		
 		return ali;
 	}
-	
-	
-
 	
 }

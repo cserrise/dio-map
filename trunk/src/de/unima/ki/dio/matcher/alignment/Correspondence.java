@@ -85,6 +85,22 @@ public class Correspondence implements Comparable<Correspondence> {
 		}
 	}	
 	
+	public boolean equals(Object correspondence) {
+		if (correspondence instanceof Correspondence) {
+			Correspondence that = (Correspondence)correspondence;
+			if (this.getUri1().equals(that.getUri1()) && this.getUri2().equals(that.getUri2())) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+		
+	}
+	
 	
 	
 	

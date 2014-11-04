@@ -69,12 +69,15 @@ public class ConferenceMarkov {
 		
 		if  (markovC.getNumOfRulesCorrect() != simpleC11.getNumOfRulesCorrect() || markovC.getNumOfRulesMatcher() != simpleC11.getNumOfRulesMatcher()) {
 			System.out.print(markovC.toShortDesc() + "\t" + simpleC11.toShortDesc());
+			System.out.println("In markov not in simple:\n" + markovAli.minus(simpleAli));
+			System.out.println("In simple not in markov:\n" + simpleAli.minus(markovAli));
 		}
 		else {
 			System.out.print("same");
 			
 		}
 		System.out.println();		
+		markovAli.write("exp/results/markov-blind-plural60/" + ont1Id + "-" + ont2Id + ".rdf");
 
 
 	}
