@@ -15,6 +15,8 @@ import de.unima.ki.dio.matcher.filter.Greedy11;
  */
 public class ConferenceSimple {
 	
+	public static String outPath = "exp/results/simple-noplural/";
+	
 	
 	public static void main(String[] args) throws DioException {
 		
@@ -63,6 +65,8 @@ public class ConferenceSimple {
 		Characteristic cS =  new Characteristic(alignmentS, reference);
 		Characteristic c =  new Characteristic(alignment, reference);
 		Characteristic c11 =  new Characteristic(alignment11, reference);
+		
+		alignmentS.write(outPath + ont1Id + "-" + ont2Id + ".rdf");
 		
 		int numOfAddCorrect = c.getNumOfRulesCorrect() - cS.getNumOfRulesCorrect();
 		int numOfAddWrong = (c.getNumOfRulesMatcher() - cS.getNumOfRulesMatcher()) - numOfAddCorrect;

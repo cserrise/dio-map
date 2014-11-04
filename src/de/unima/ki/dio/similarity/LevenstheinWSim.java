@@ -15,6 +15,12 @@ public class LevenstheinWSim implements WordSimilarity {
 		// and it
 		Levenshtein lev = new Levenshtein();
 		double val = (double)lev.getSimilarity(w1.getToken().toLowerCase(), w2.getToken().toLowerCase());
+		double valS1 = (double)lev.getSimilarity(w1.getToken().toLowerCase() + "s", w2.getToken().toLowerCase());
+		double valS2 = (double)lev.getSimilarity(w1.getToken().toLowerCase(), w2.getToken().toLowerCase() + "s");
+		
+		if (valS1 >= val || valS2 >= val) {
+			val = Math.max(valS1, valS2) - Settings.MALUS_FOR_PLURALS_SIMILIARITY;
+		}
 		val = (val >= Settings.LEVENSHTEIN_THRESHOLD) ? val : 0.0;
 		return val;
 	}

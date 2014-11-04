@@ -51,16 +51,15 @@ sim: !wordSim(w1, w2, sim) v wordEquiv(w1,w2)
 !conceptEquiv(c1,c2) v !concept1hasLabel2(c1, w1p1, w1p2) v !concept2hasLabel2(c2, w2p1, w2p2) v wordEquiv(w1p2,w2p2).
 
 
-
-
-
-
-
 // three-word labeled concepts
 !concept1hasLabel3(c1, w1p1, w1p2, w1p3) v !concept2hasLabel3(c2, w2p1, w2p2, w2p3) v !wordEquiv(w1p1,w2p1) v !wordEquiv(w1p2,w2p2) v !wordEquiv(w1p3,w2p3) v conceptEquiv(c1,c2).
 !conceptEquiv(c1,c2) v !concept1hasLabel3(c1, w1p1, w1p2, w1p3) v !concept2hasLabel3(c2, w2p1, w2p2, w2p3) v wordEquiv(w1p1,w2p1).
 !conceptEquiv(c1,c2) v !concept1hasLabel3(c1, w1p1, w1p2, w1p3) v !concept2hasLabel3(c2, w2p1, w2p2, w2p3) v wordEquiv(w1p2,w2p2).
 !conceptEquiv(c1,c2) v !concept1hasLabel3(c1, w1p1, w1p2, w1p3) v !concept2hasLabel3(c2, w2p1, w2p2, w2p3) v wordEquiv(w1p3,w2p3).
+
+// ??????????
+!conceptEquiv(c1,c2) v !concept1hasLabel3(c1, w1p1, w1p2, w1p3) v concept2hasLabel3(c2, w2p1, w2p2, w2p3).
+!conceptEquiv(c1,c2) v !concept2hasLabel3(c2, w2p1, w2p2, w2p3) v concept1hasLabel3(c, w1p1, w1p2, w1p3).
 
 
 

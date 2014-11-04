@@ -86,8 +86,14 @@ public class Alignment implements Iterable<Correspondence>{
 	}
 
 	
-	public void add(Correspondence correspondence) {
-		correspondences.add(correspondence);
+	public void add(Correspondence c) {
+		this.correspondences.add(c);
+	}
+	
+	public void add(Alignment alignment) {
+		for (Correspondence c : alignment) {
+			this.correspondences.add(c);
+		}
 	}
 
 	@Override
@@ -124,10 +130,40 @@ public class Alignment implements Iterable<Correspondence>{
 	public Correspondence get(int index) {
 		return this.correspondences.get(index);
 	}
+
+	
+	/**
+	* Computes this minus a given alignment.
+	*  
+	* @param alignment The alignment that is substracted.
+	* @return This minus a given alignment.
+	*/
+	public Alignment minus(Alignment alignment) {
+		Alignment result = new Alignment();
+		for (Correspondence c : this) {
+			boolean contained = false;
+			for (Correspondence r : alignment) {
+				if (c.equals(r)) {
+					contained = true;
+				}
+	
+			}
+			if (!contained) {
+				result.add(c);
+			}
+		}
+		return result;
+	}
 	
 	
-	
-	
-	
+	public boolean contained(Correspondence c) {
+		for (Correspondence myC : this.correspondences) {
+			if (myC.equals(c)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 }

@@ -133,7 +133,7 @@ public class Word {
 	 * @return The string for which this word is a wrapper.
 	 */
 	public String getMLId(String ontId) {
-		return ontId + "#" + this.token;
+		return "W" + ontId + "#" + this.token;
 	}
 	
 	

@@ -29,8 +29,7 @@ public class PyExecutor
     public static String server = scheme + "://" + host + ":" + port + "/" + path;
 
 
-    public synchronized static String getAction(String id, String action) throws Exception
-    {
+    public synchronized static String getAction(String id, String action) throws Exception {
         HttpClient httpclient = new DefaultHttpClient();
         httpclient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
 
