@@ -8,8 +8,14 @@ public class Settings {
 	public static final String DISCO_DIRECTORY = "res/enwiki-20130403-sim-lemma-mwl-lc/";
 
 	// similarity thresholds
-	public static final double DISCO_THRESHOLD = 0.6;
+	public static final double DISCO_THRESHOLD = 0.3;
 	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
+	
+	
+	// span for similarities above the threshold
+	public static final double SIM_LOWER_BOUND = -1.3;
+	public static final double SIM_UPPER_BOUND = 0.7;
+	
 	
 	public static final String TEMP_DIR = "tmp/";
 

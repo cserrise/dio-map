@@ -14,7 +14,7 @@ import de.unima.ki.dio.similarity.*;
  * The resulting mapping is then filtered with a greedy 1:1 approach.
  *
  */
-public class StringMatcher implements Matcher {
+public class StringMatcher extends Matcher {
 
 	public Alignment match(Ontology ont1, Ontology ont2) {
 		

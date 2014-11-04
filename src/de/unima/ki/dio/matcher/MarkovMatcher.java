@@ -1,11 +1,11 @@
 package de.unima.ki.dio.matcher;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
+
 
 import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.entities.*;
@@ -23,7 +23,7 @@ import de.unima.ki.dio.similarity.*;
  * UNDER CONSTRUCTION
  *
  */
-public class MarkovMatcher implements Matcher {
+public class MarkovMatcher extends Matcher {
 
 	private Ontology ont1;
 	private Ontology ont2;
@@ -100,7 +100,10 @@ public class MarkovMatcher implements Matcher {
 	private void createEvidence() {
 		writeEvidenceEntities(ont1.getEntities(), "1");
 		writeEvidenceEntities(ont2.getEntities(), "2");		
+		writeEvidenceSemantics(ont1.getEntities(), "1");
+		writeEvidenceSemantics(ont2.getEntities(), "2");
 		writeEvidenceWordSimilarity(ont1.getWords(), "1", ont2.getWords(), "2");
+		
 	}
 
 	private void writeEvidenceEntities(HashSet<Entity> entities, String ontId) {
@@ -122,6 +125,33 @@ public class MarkovMatcher implements Matcher {
 		}
 		this.writeln();
 	}
+	
+	private void writeEvidenceSemantics(HashSet<Entity> entities, String ontId) {
+		this.writeComment("subsumption and disjointness between concepts in ontology " + ontId);
+		for (Entity e1 : entities) {
+			if (e1 instanceof Concept) {
+				for (Entity e2 : entities) {
+					if (e2 instanceof Concept) {
+						Concept e1Concept = (Concept)e1;
+						Concept e2Concept = (Concept)e2;
+						// System.out.println(e1 + "   MAX NUM OF WORDS = " + e1.getMaxNumOfWords());
+						// System.out.println(e2 + "   MAX NUM OF WORDS = " + e2.getMaxNumOfWords());
+						if (e1.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL &&  e2.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+							if (e1Concept.isSubClass(e2Concept)) {
+								this.writelnGroundAtom("sub_o" + ontId, e1.getUri(), e2.getUri());
+							}
+							if (e1Concept.isDisjoint(e2Concept)) {
+								this.writelnGroundAtom("dis_o" + ontId, e1.getUri(), e2.getUri());
+							}
+						}
+					}
+				}
+			}
+		}
+		this.writeln();
+	}
+
+
 
 	
 	private void writeEvidenceWordSimilarity(HashSet<Word> wordsOnt1, String ont1Id, HashSet<Word> wordsOnt2, String ont2Id) {
@@ -132,7 +162,7 @@ public class MarkovMatcher implements Matcher {
 				double dsim = this.discoWSim.getSimilarity(w1, w2);
 				double sim = Math.max(lsim, dsim);
 				if (sim > 0) {
-					this.writelnGroundAtomWeighted("wordSim", w1.getMLId(ont1Id), w2.getMLId(ont2Id), "" + sim);	
+					this.writelnGroundAtomWeighted("wordSim", w1.getMLId(ont1Id), w2.getMLId(ont2Id), "" + normalize(sim));	
 				}
 				else {
 					this.writelnGroundAtom("!wordEQ", w1.getMLId(ont1Id), w2.getMLId(ont2Id));	
@@ -143,6 +173,8 @@ public class MarkovMatcher implements Matcher {
 		
 		this.writeln();
 	}
+
+	
 	
 	
 	private Alignment runRockit() throws RockitException {

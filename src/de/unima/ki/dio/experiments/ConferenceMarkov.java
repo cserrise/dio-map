@@ -33,16 +33,12 @@ public class ConferenceMarkov {
 			for (int j = i+1; j < ontIds.length; j++) {
 				String ont1Id = ontIds[i];
 				String ont2Id = ontIds[j]; 
+				//String ont1Id = "cmt";
+				//String ont2Id = "edas"; 
 				runTestcase(ont1Id, ont2Id);
-				// System.out.println();
 				// System.exit(1);
-				
 			}			
 		}
-		
-
-		
-		
 	}
 
 	private static void runTestcase(String ont1Id, String ont2Id) throws DioException, AlignmentException {
@@ -59,6 +55,7 @@ public class ConferenceMarkov {
 		
 		Alignment markovAli = markov.match(ont1, ont2);
 		Alignment simpleAli = simple.match(ont1, ont2);
+		simpleAli.applyThreshold(0.0);
 		Alignment simpleAli11  = Greedy11.filter(simpleAli);
 		
 		Alignment reference = new Alignment(refPath);
@@ -69,15 +66,16 @@ public class ConferenceMarkov {
 		
 		if  (markovC.getNumOfRulesCorrect() != simpleC11.getNumOfRulesCorrect() || markovC.getNumOfRulesMatcher() != simpleC11.getNumOfRulesMatcher()) {
 			System.out.print(markovC.toShortDesc() + "\t" + simpleC11.toShortDesc());
-			System.out.println("In markov not in simple:\n" + markovAli.minus(simpleAli));
-			System.out.println("In simple not in markov:\n" + simpleAli.minus(markovAli));
+			System.out.println("");
+			System.out.println("In markov not in simple11:\n" + markovAli.minus(simpleAli11));
+			System.out.println("In simple11 not in markov:\n" + simpleAli11.minus(markovAli));
 		}
 		else {
 			System.out.print("same");
 			
 		}
 		System.out.println();		
-		markovAli.write("exp/results/markov-blind-plural60/" + ont1Id + "-" + ont2Id + ".rdf");
+		markovAli.write("exp/results/markov-x30-minus30-coh-exp/" + ont1Id + "-" + ont2Id + ".rdf");
 
 
 	}
