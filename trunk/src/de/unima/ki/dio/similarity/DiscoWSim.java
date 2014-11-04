@@ -34,7 +34,7 @@ public class DiscoWSim implements WordSimilarity {
 					return 0.0d;
 				}
 				else  {
-					sim = Math.sqrt(sim);
+					// sim = Math.sqrt(sim);
 					return sim;			
 				}	
 			}

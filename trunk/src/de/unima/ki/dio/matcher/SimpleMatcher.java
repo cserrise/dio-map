@@ -14,7 +14,7 @@ import de.unima.ki.dio.similarity.*;
  * The resulting mapping is then filtered with a greedy 1:1 approach.
  *
  */
-public class SimpleMatcher implements Matcher {
+public class SimpleMatcher extends Matcher {
 
 	public Alignment match(Ontology ont1, Ontology ont2) {
 		
@@ -26,7 +26,7 @@ public class SimpleMatcher implements Matcher {
 		
 		for (Entity e1 : ont1.getEntities()) {
 			for (Entity e2 : ont2.getEntities()) {
-				double bestSim = 0.0;
+				double bestSim = -100.0;
 				for (Label l1 : e1.getLabels()) {
 					for (Label l2 : e2.getLabels()) {
 						if (l1.getNumberOfWords() == l2.getNumberOfWords()) {
@@ -48,9 +48,13 @@ public class SimpleMatcher implements Matcher {
 					}				
 					
 				}
-				if (bestSim > 0) {
-					c = new Correspondence(e1.getUri(), e2.getUri(), bestSim);
-					ali.add(c);
+				if (bestSim > -100.0) {
+					bestSim = normalize(bestSim);
+					if (bestSim > 0.0) {
+						c = new Correspondence(e1.getUri(), e2.getUri(), bestSim);
+						ali.add(c);
+					}
+					
 				}			
 			}			
 			

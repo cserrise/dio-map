@@ -2,6 +2,7 @@ package de.unima.ki.dio.entities;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
@@ -18,6 +19,7 @@ import de.unima.ki.dio.Settings;
 public class Ontology {
 
 	HashSet<Entity> entities = new HashSet<Entity>();
+	HashMap<String, Concept> uri2Concept = new HashMap<String, Concept>();  
 
 	/**
 	* Constructs an internal representation of the ontology in terms of storing all entities of the ontology
@@ -49,35 +51,53 @@ public class Ontology {
 			if (classy.getIRI().toString().startsWith(Settings.OWL_NS)) {
 				continue;
 			}
-			
 			ArrayList<Word> words = getLabelAsWordList(classy);
 			Label label = new Label(words);
 			Concept concept = new Concept(classy.getIRI().toString(), label);
-			
-			//add disjointconcepts and subconcepts to concept
-			
-			for(OWLClass disjointClass:reasoner.getDisjointClasses(classy).getFlattened()){
-				if(disjointClass.getIRI().toString().equals(classy.getIRI().toString())){
-					continue;
-				}
-				Label disjointLabel = new Label(getLabelAsWordList(disjointClass));
-				Concept disjointConcept = new Concept(disjointClass.getIRI().toString(), disjointLabel);
-				concept.addDisjointConcept(disjointConcept);
-			}
-			
-
-			for(OWLClass subClass:reasoner.getSubClasses(classy, false).getFlattened()){
-				if (subClass.getIRI().toString().startsWith(Settings.OWL_NS)) {
-					continue;
-				}
-				Label subClassLabel = new Label(getLabelAsWordList(subClass));
-				Concept subConcept = new Concept(subClass.getIRI().toString(), subClassLabel);
-				concept.addSubConcept(subConcept);
-			}
-			
 			this.addConcept(concept);
+			this.uri2Concept.put(classy.getIRI().toString(), concept);
+		}
+		
+		for(OWLClass classy:ontologyOWL.getClassesInSignature()){
+			if (classy.getIRI().toString().startsWith(Settings.OWL_NS)) {
+				continue;
+			}
+			Concept concept = getConceptByUri(classy.getIRI().toString());
+			addSemantics(reasoner, classy, concept);
 		}
 
+	}
+	
+	private Concept getConceptByUri(String uri) {
+		if (this.uri2Concept.containsKey(uri)) {
+			return this.uri2Concept.get(uri);
+		}
+		else {
+			return null;
+		}
+	}
+
+	private void addSemantics(OWLReasoner reasoner, OWLClass classy, Concept concept) {
+		//add disjointconcepts and subconcepts to concept
+		for(OWLClass disjointClass : reasoner.getDisjointClasses(classy).getFlattened()){
+			if(disjointClass.getIRI().toString().equals(classy.getIRI().toString())){
+				continue;
+			}
+			Concept disConcept = this.getConceptByUri(disjointClass.getIRI().toString());
+			if (disConcept != null) {
+				concept.addDisjointConcept(disConcept);
+			}
+		}
+	
+		for(OWLClass subClass : reasoner.getSubClasses(classy, false).getFlattened()){
+			if (subClass.getIRI().toString().startsWith(Settings.OWL_NS)) {
+				continue;
+			}
+			Concept subConcept = this.getConceptByUri(subClass.getIRI().toString());
+			if (subConcept != null) {
+				concept.addSubConcept(subConcept);
+			}
+		}
 	}
 	
 	/**

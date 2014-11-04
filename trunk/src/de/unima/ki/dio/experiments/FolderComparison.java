@@ -12,8 +12,8 @@ import de.unima.ki.dio.matcher.alignment.Correspondence;
  */
 public class FolderComparison {
 	
-	public static String folder1 = "exp/results/markov-blind-plural60/";
-	public static String folder2 = "exp/results/markov-blind-plural80/";
+	public static String folder1 = "exp/results/markov-x30-minus30/";
+	public static String folder2 = "exp/results/markov-x30-minus30-coh/";
 	public static String refFolder = "exp/conference/references/";
 	
 	public static Alignment folder1Alignment = new Alignment();
@@ -73,7 +73,7 @@ public class FolderComparison {
 		referenceAlignment.add(ref);
 		
 		
-		
+		// System.out.println("NOT FOUND:\n" + ref.minus(ali2));
 	
 		
 		if (!((ali1.minus(ali2).size() == 0)  && (ali2.minus(ali1).size() == 0))) {

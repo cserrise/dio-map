@@ -31,4 +31,13 @@ public abstract class Entity {
 		
 	}
 
+	public int getMaxNumOfWords() {
+		int max = 0;
+		for (Label l : this.labels) {
+		
+			max = (max < l.getNumberOfWords()) ? l.getNumberOfWords() : max;
+		}
+		return max;
+	}
+
 }
