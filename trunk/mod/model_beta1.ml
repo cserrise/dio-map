@@ -23,10 +23,10 @@
 *wordSim(Word1, Word2, float_)
 
 // words, labels, concepts
-*sub_o1(Concept1, Concept1)
-*dis_o1(Concept1, Concept1)
-*sub_o2(Concept2, Concept2)
-*dis_o2(Concept2, Concept2)
+sub_o1(Concept1, Concept1)
+dis_o1(Concept1, Concept1)
+sub_o2(Concept2, Concept2)
+dis_o2(Concept2, Concept2)
 
 // *** hidden ***
 wordEQ(Word1, Word2)
@@ -117,9 +117,12 @@ sim: !wordSim(w1, w2, sim) v wordEQ(w1,w2)
 !conceptEQ(c1_o1, c1_o2) v !conceptEQ(c2_o1, c2_o2) v !sub_o1(c1_o1, c2_o1) v !dis_o2(c1_o2, c2_o2).
 !conceptEQ(c1_o1, c1_o2) v !conceptEQ(c2_o1, c2_o2) v !dis_o1(c1_o1, c2_o1) v !sub_o2(c1_o2, c2_o2).
 
--0.5 !conceptEQ(c1_o1, c1_o2) v !conceptEQ(c2_o1, c2_o2)  v !sub_o1(c1_o1, c2_o1) v !sub_o2(c1_o2, c2_o2)
+!sub_o1(c1_o1, c2_o1) v !sub_o1(c2_o1, c3_o1) v sub_o1(c1_o1, c3_o1).
+!sub_o2(c1_o2, c2_o2) v !sub_o2(c2_o2, c3_o2) v sub_o2(c1_o2, c3_o2).
 
 
+!sub_o1(c1_o1, c2_o1) v !dis_o1(c1_o1, c3_o1)  v dis_o1(c2_o1, c3_o1).
+!sub_o2(c1_o2, c2_o2) v !dis_o2(c1_o2, c3_o2)  v dis_o2(c2_o2, c3_o2).
 
 
 
