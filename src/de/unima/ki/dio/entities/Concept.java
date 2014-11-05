@@ -46,7 +46,6 @@ public class Concept extends Entity {
 		else {
 			return false;
 		}
-		
 	}
 	
 	/**

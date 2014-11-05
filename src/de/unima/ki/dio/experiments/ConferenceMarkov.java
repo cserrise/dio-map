@@ -75,7 +75,7 @@ public class ConferenceMarkov {
 			
 		}
 		System.out.println();		
-		markovAli.write("exp/results/markov-x30-minus30-coh-exp/" + ont1Id + "-" + ont2Id + ".rdf");
+		markovAli.write("exp/results/markov-x30-minus30-bbc/" + ont1Id + "-" + ont2Id + ".rdf");
 
 
 	}

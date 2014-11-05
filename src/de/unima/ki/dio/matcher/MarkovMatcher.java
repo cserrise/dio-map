@@ -99,9 +99,12 @@ public class MarkovMatcher extends Matcher {
 
 	private void createEvidence() {
 		writeEvidenceEntities(ont1.getEntities(), "1");
-		writeEvidenceEntities(ont2.getEntities(), "2");		
-		writeEvidenceSemantics(ont1.getEntities(), "1");
-		writeEvidenceSemantics(ont2.getEntities(), "2");
+		writeEvidenceEntities(ont2.getEntities(), "2");	
+		if (Settings.ENSURE_COHERENCY) {
+			writeEvidenceSemantics(ont1.getEntities(), "1");
+			writeEvidenceSemantics(ont2.getEntities(), "2");
+		}
+
 		writeEvidenceWordSimilarity(ont1.getWords(), "1", ont2.getWords(), "2");
 		
 	}

@@ -22,7 +22,7 @@
 
 *wordSim(Word1, Word2, float_)
 
-// words, labels, concepts
+// semantics
 sub_o1(Concept1, Concept1)
 dis_o1(Concept1, Concept1)
 sub_o2(Concept2, Concept2)
