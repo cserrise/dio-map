@@ -24,12 +24,17 @@ public class DiscoWSim implements WordSimilarity {
 	}
 
 	public double getSimilarity(Word w1, Word w2) {
+		return getSimilarity(w1.getToken(), w2.getToken());
+		
+	}
+	
+	public double getSimilarity(String w1, String w2) {
 		try {
-			if (w1.getToken().equalsIgnoreCase(w2.getToken())) {
+			if (w1.equalsIgnoreCase(w2)) {
 				return 1.0d;
 			}
 			else {
-				double sim = (double)this.disco.secondOrderSimilarity(w1.getToken().toLowerCase(), w2.getToken().toLowerCase());
+				double sim = (double)this.disco.secondOrderSimilarity(w1.toLowerCase(), w2.toLowerCase());
 				if (sim < Settings.DISCO_THRESHOLD * Settings.DISCO_THRESHOLD) {
 					return 0.0d;
 				}
@@ -46,6 +51,7 @@ public class DiscoWSim implements WordSimilarity {
 		return 0.0d;
 		
 	}
+	
 	
 	
 

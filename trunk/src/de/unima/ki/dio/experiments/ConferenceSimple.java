@@ -3,6 +3,7 @@ package de.unima.ki.dio.experiments;
 import de.unima.ki.dio.entities.Ontology;
 import de.unima.ki.dio.exceptions.AlignmentException;
 import de.unima.ki.dio.exceptions.DioException;
+import de.unima.ki.dio.matcher.DiscoMatcher;
 import de.unima.ki.dio.matcher.Matcher;
 import de.unima.ki.dio.matcher.SimpleMatcher;
 import de.unima.ki.dio.matcher.StringMatcher;
@@ -15,7 +16,7 @@ import de.unima.ki.dio.matcher.filter.Greedy11;
  */
 public class ConferenceSimple {
 	
-	public static String outPath = "exp/results/simple-noplural/";
+	public static String outPath = "exp/results/disco1/";
 	
 	
 	public static void main(String[] args) throws DioException {
@@ -54,24 +55,24 @@ public class ConferenceSimple {
 		Ontology ont2 = new Ontology(ont2Path);
 		
 		Matcher matcher = new SimpleMatcher();
-		Matcher matcherS = new StringMatcher();
+		Matcher matcherDisco = new DiscoMatcher();
 		
-		Alignment alignmentS = matcherS.match(ont1, ont2);
+		Alignment alignmentDisco = matcherDisco.match(ont1, ont2);
 		Alignment alignment = matcher.match(ont1, ont2);
 		Alignment alignment11 = Greedy11.filter(alignment);
 		
 		Alignment reference = new Alignment(refPath);
 		
-		Characteristic cS =  new Characteristic(alignmentS, reference);
+		Characteristic cDisco =  new Characteristic(alignmentDisco, reference);
 		Characteristic c =  new Characteristic(alignment, reference);
 		Characteristic c11 =  new Characteristic(alignment11, reference);
 		
-		alignmentS.write(outPath + ont1Id + "-" + ont2Id + ".rdf");
+		alignmentDisco.write(outPath + ont1Id + "-" + ont2Id + ".rdf");
 		
-		int numOfAddCorrect = c.getNumOfRulesCorrect() - cS.getNumOfRulesCorrect();
-		int numOfAddWrong = (c.getNumOfRulesMatcher() - cS.getNumOfRulesMatcher()) - numOfAddCorrect;
+		int numOfAddCorrect = c.getNumOfRulesCorrect() - cDisco.getNumOfRulesCorrect();
+		int numOfAddWrong = (c.getNumOfRulesMatcher() - cDisco.getNumOfRulesMatcher()) - numOfAddCorrect;
 		
-		System.out.println(cS.toShortDesc() + "\t" + c.toShortDesc() + "\t" +  c11.toShortDesc() + "\t" + numOfAddCorrect + "\t" + numOfAddWrong );
+		System.out.println(cDisco.toShortDesc() + "\t" + c.toShortDesc() + "\t" +  c11.toShortDesc() + "\t" + numOfAddCorrect + "\t" + numOfAddWrong );
 		
 		
 

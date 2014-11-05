@@ -6,7 +6,11 @@ public class EqualityWSim implements WordSimilarity {
 
 	
 	public double getSimilarity(Word w1, Word w2) {
-		if (w1.getToken().toLowerCase().equals(w2.getToken().toLowerCase())) {
+		return this.getSimilarity(w1.getToken(), w2.getToken());
+	}
+	
+	public double getSimilarity(String w1, String w2) {
+		if (w1.toLowerCase().equals(w2.toLowerCase())) {
 			return 1.0d;
 		}
 		else {

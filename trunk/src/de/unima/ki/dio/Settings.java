@@ -5,7 +5,9 @@ public class Settings {
 	// used to split labels from ontologies 
 	public static final String REGEX_FOR_SPLIT = "(?<=\\p{Ll})(?=\\p{Lu})|(?<=\\p{L})(?=\\p{Lu}\\p{Ll})|(_)";
 	
-	public static final String DISCO_DIRECTORY = "res/enwiki-20130403-sim-lemma-mwl-lc/";
+	// public static final String DISCO_DIRECTORY = "res/enwiki-20130403-sim-lemma-mwl-lc/";
+	
+	public static final String DISCO_DIRECTORY = "res/en-BNC-20080721/";
 
 	// similarity thresholds
 	public static final double DISCO_THRESHOLD = 0.3;
@@ -32,6 +34,8 @@ public class Settings {
 	public static final double MALUS_FOR_PLURALS_SIMILIARITY = 0.01;
 
 	public static final int MAX_NUM_OF_WORDS_IN_LABEL = 3;
+
+	public static final boolean ENSURE_COHERENCY = false;
 	
 	
 	
