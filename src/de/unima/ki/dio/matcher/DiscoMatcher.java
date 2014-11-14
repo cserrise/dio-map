@@ -18,7 +18,7 @@ public class DiscoMatcher extends Matcher {
 
 	public Alignment match(Ontology ont1, Ontology ont2) {
 		
-		WordSimilarity discoWSim = new DiscoWSim();
+		WordSimilarity discoCSim = new DiscoCSim();
 		WordSimilarity lshtein = new LevenstheinWSim();
 		
 		Correspondence c;
@@ -36,14 +36,20 @@ public class DiscoMatcher extends Matcher {
 							String l1words = "";
 							String l2words = "";
 							for (int i = 0; i < l1.getNumberOfWords(); i++) {
-								l1words += l1.getWord(i);
+								l1words += l1.getWord(i) + " ";
 							}
 							for (int i = 0; i < l2.getNumberOfWords(); i++) {
-								l2words += l2.getWord(i);
+								l2words += l2.getWord(i) + " ";
 							}
+							l1words = l1words.trim();
+							l2words = l2words.trim();
 							lsim = lshtein.getSimilarity(l1words, l2words);
-							dsim = discoWSim.getSimilarity(l1words, l2words);
+							dsim = discoCSim.getSimilarity(l1words, l2words);
 							double currentSim = Math.max(lsim, dsim);
+							if (currentSim > 0.1 && (l1.getNumberOfWords() > 1 || l2.getNumberOfWords() > 1) ) {
+								System.out.println(l1words + " <-> " + l2words + " currentsim: " + currentSim);
+							}
+							
 							
 
 							if (currentSim > bestSim) {

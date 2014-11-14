@@ -1,6 +1,7 @@
 package de.unima.ki.dio.experiments;
 
 
+import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.entities.Ontology;
 import de.unima.ki.dio.exceptions.AlignmentException;
 import de.unima.ki.dio.exceptions.DioException;
@@ -29,12 +30,15 @@ public class ConferenceMarkov {
 			"sigkdd"
 		};
 		
+		String refp = Settings.ROCKIT_EVIDENCEFILEPATH;
 		for (int i = 0; i < ontIds.length - 1; i++) {
 			for (int j = i+1; j < ontIds.length; j++) {
 				String ont1Id = ontIds[i];
 				String ont2Id = ontIds[j]; 
+				String testcaseId = ont1Id  + "-" + ont2Id; 
 				//String ont1Id = "cmt";
 				//String ont2Id = "edas"; 
+				Settings.ROCKIT_EVIDENCEFILEPATH = refp + "-" + testcaseId;
 				runTestcase(ont1Id, ont2Id);
 				// System.exit(1);
 			}			
