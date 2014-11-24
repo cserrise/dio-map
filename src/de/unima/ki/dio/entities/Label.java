@@ -67,6 +67,15 @@ public class Label {
 		return rep;
 	}
 	
+	public String toSpacedString() {
+		String ret = this.getWord(0).toString();
+		for (int i = 1; i < this.getNumberOfWords(); i++) {
+			ret = ret + " " + this.getWord(i);  
+			
+		}
+		return ret;
+	}
+	
 	
 	public String getMLLabel(String ontId) {
 		return "L" + ontId + "#" + this.toRawString();
