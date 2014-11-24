@@ -1,5 +1,8 @@
 package de.unima.ki.dio.experiments;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+
 import de.unima.ki.dio.exceptions.AlignmentException;
 import de.unima.ki.dio.exceptions.DioException;
 import de.unima.ki.dio.matcher.alignment.Alignment;
@@ -71,6 +74,18 @@ public class FolderComparison {
 		folder1Alignment.add(ali1);
 		folder2Alignment.add(ali2);
 		referenceAlignment.add(ref);
+		
+		try {
+			PrintWriter pw = new PrintWriter(mappingFile);
+			for (Correspondence c : ref) {
+				pw.println(c);
+			}
+			pw.close();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		
 		
 		
 		// System.out.println("NOT FOUND:\n" + ref.minus(ali2));
