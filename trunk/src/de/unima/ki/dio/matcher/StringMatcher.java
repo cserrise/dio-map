@@ -7,8 +7,8 @@ import de.unima.ki.dio.matcher.alignment.Correspondence;
 import de.unima.ki.dio.similarity.*;
 
 /**
- * A classical simple matcher that uses Equivality, Levensthein (with very high threshold) to detect spelling mistakes or variants and 
- * DISCO to detect that different words have the same meaning. It only matches entities on other entities if their labels have the same
+ * A classical simple matcher that uses Equivality, Levensthein (with very high threshold) to detect spelling mistakes.
+ * It only matches entities on other entities if their labels have the same
  * length and each of the words has a similar counterpart. The resulting confidence is the product of all involved similarities. 
  * 
  * The resulting mapping is then filtered with a greedy 1:1 approach.

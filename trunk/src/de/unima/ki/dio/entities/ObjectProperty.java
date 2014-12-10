@@ -7,7 +7,14 @@ public class ObjectProperty extends Entity {
 	private HashSet<Concept> domainConcept = new HashSet<Concept>();
 	private HashSet<Concept> rangeConcept = new HashSet<Concept>();
 	
+	/**
+	* If false, there is only one element in the domainConcept set.
+	*/
 	private boolean domainAnonymous = false;
+	
+	/**
+	* If false, there is only one element in the rangeConcept set.
+	*/
 	private boolean rangeAnonymous = false;
 	
 	private String verbBaseForm = null;

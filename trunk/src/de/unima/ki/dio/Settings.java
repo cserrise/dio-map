@@ -2,6 +2,12 @@ package de.unima.ki.dio;
 
 public class Settings {
 	
+	/**
+	 * If set to true, a local installation of rockIt is used. Otherwise the web services
+	 * will be called. 
+	 */
+	public static final boolean USE_LOCAL_ROCKIT = true;
+	
 	// used to split labels from ontologies 
 	public static final String REGEX_FOR_SPLIT = "(?<=\\p{Ll})(?=\\p{Lu})|(?<=\\p{L})(?=\\p{Lu}\\p{Ll})|(_)";
 	

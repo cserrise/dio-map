@@ -1,10 +1,19 @@
 package de.unima.ki.dio.matcher;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import org.antlr.runtime.RecognitionException;
+
+import com.googlecode.rockit.app.Main;
+import com.googlecode.rockit.exception.ParseException;
+import com.googlecode.rockit.exception.ReadOrWriteToFileException;
+import com.googlecode.rockit.exception.SolveException;
 
 
 import de.unima.ki.dio.Settings;
@@ -58,7 +67,15 @@ public class MarkovMatcher extends Matcher {
 		createEvidence();
 		// createGroundedRules();
 		writer.close();
-		Alignment alignment = runRockit();
+		Alignment alignment = null;
+		if (Settings.USE_LOCAL_ROCKIT) {
+			alignment = this.runRockitLocal(); 
+		}
+		else {
+			alignment = this.runRockitRemote(); 
+		}
+				
+				
 		out.close();
 		return alignment;
 	}
@@ -180,8 +197,10 @@ public class MarkovMatcher extends Matcher {
 	
 	
 	
-	private Alignment runRockit() throws RockitException {
+	private Alignment runRockitRemote() throws RockitException {
 		Alignment alignment = new Alignment();
+		
+		
 		RemoteRockit rockit = new RemoteRockit(Settings.ROCKIT_MODELFILEPATH, Settings.ROCKIT_EVIDENCEFILEPATH);
 		RockitResult rr = rockit.run();
 		
@@ -214,6 +233,42 @@ public class MarkovMatcher extends Matcher {
 		for (String[] values : b2) {
 			out.println("blindWord_o2: " + values[0]);
 		}
+		
+		return alignment;
+	}
+	
+	private Alignment runRockitLocal() throws RockitException {
+		Alignment alignment = new Alignment();
+		Main rockitLocal = new Main();
+		String[] args = new String[]{
+			"-input", "xxx",
+			"-data", "yyy",
+			"-output", "zzz"
+		};
+		
+		try {
+			rockitLocal.doMain(args);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (RecognitionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SolveException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ReadOrWriteToFileException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	
 		
 		return alignment;
 	}

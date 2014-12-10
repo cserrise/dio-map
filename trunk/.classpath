@@ -12,5 +12,16 @@
 	<classpathentry kind="lib" path="lib/httpcore-4.1.4.jar"/>
 	<classpathentry kind="lib" path="lib/httpmime-4.1.3.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-postagger.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/antlr-3.4.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/antlr-runtime-3.4.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/args4j-2.0.16.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/gurobi-rockit.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/mysql-connector-java-5.1.18.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/rockit-0.5.277.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/ST4-4.0.4.jar"/>
+	<classpathentry kind="lib" path="lib/rockit/stringtemplate-3.2.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
