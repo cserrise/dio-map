@@ -40,7 +40,9 @@ public class ConferenceMarkov {
 				//String ont2Id = "edas"; 
 				Settings.ROCKIT_EVIDENCEFILEPATH = refp + "-" + testcaseId;
 				runTestcase(ont1Id, ont2Id);
+				
 				// System.exit(1);
+				System.out.println("Died due to System.exit()!");
 			}			
 		}
 	}
@@ -79,7 +81,7 @@ public class ConferenceMarkov {
 			
 		}
 		System.out.println();		
-		markovAli.write("exp/results/markov-x30-minus30-bbc/" + ont1Id + "-" + ont2Id + ".rdf");
+		markovAli.write("exp/results/temp/" + ont1Id + "-" + ont2Id + ".rdf");
 
 
 	}
