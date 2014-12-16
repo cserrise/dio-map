@@ -21,8 +21,9 @@ import de.unima.ki.dio.entities.*;
 import de.unima.ki.dio.exceptions.RockitException;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Correspondence;
-import de.unima.ki.dio.rockit.RemoteRockit;
-import de.unima.ki.dio.rockit.RockitResult;
+import de.unima.ki.dio.rockit.RockitAdapter;
+import de.unima.ki.dio.rockit.remote.RemoteRockit;
+import de.unima.ki.dio.rockit.remote.RockitResult;
 import de.unima.ki.dio.similarity.*;
 
 
@@ -67,13 +68,9 @@ public class MarkovMatcher extends Matcher {
 		createEvidence();
 		// createGroundedRules();
 		writer.close();
-		Alignment alignment = null;
-		if (Settings.USE_LOCAL_ROCKIT) {
-			alignment = this.runRockitLocal(); 
-		}
-		else {
-			alignment = this.runRockitRemote(); 
-		}
+		RockitAdapter rockitAdapter = new RockitAdapter(Settings.ROCKIT_MODELFILEPATH, Settings.ROCKIT_EVIDENCEFILEPATH, Settings.ROCKIT_LOCALOUT);
+		Alignment alignment = rockitAdapter.runRockit();
+
 				
 				
 		out.close();
@@ -135,7 +132,7 @@ public class MarkovMatcher extends Matcher {
 					ArrayList<String> paramsC2L = new ArrayList<String>();
 					paramsC2L.add(e.getUri());
 					paramsC2L.add(l.getMLLabel(ontId));
-					this.writelnGroundAtom("hasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
+					this.writelnGroundAtom("conceptHasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
 					ArrayList<String> paramsL2W = new ArrayList<String>();
 					paramsL2W.add(l.getMLLabel(ontId));
 					paramsL2W.addAll(l.getMLWords(ontId));
@@ -241,13 +238,14 @@ public class MarkovMatcher extends Matcher {
 		Alignment alignment = new Alignment();
 		Main rockitLocal = new Main();
 		String[] args = new String[]{
-			"-input", "xxx",
-			"-data", "yyy",
-			"-output", "zzz"
+			"-input",  Settings.ROCKIT_MODELFILEPATH,
+			"-data",   Settings.ROCKIT_EVIDENCEFILEPATH,
+			"-output", Settings.ROCKIT_LOCALOUT + "xxx"
 		};
 		
 		try {
 			rockitLocal.doMain(args);
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -269,6 +267,7 @@ public class MarkovMatcher extends Matcher {
 		}
 		
 	
+		System.exit(1);
 		
 		return alignment;
 	}

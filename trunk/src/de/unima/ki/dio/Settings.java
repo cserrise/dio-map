@@ -40,7 +40,7 @@ public class Settings {
 	// settings relavant for rockit
 	public static final String ROCKIT_ENDPOINT = "xxxx";
 	public static final double ROCKIT_GAP = 0.0000000001; 
-	public static final String ROCKIT_MODELFILEPATH = "mod/model_beta1.ml";
+	public static final String ROCKIT_MODELFILEPATH = "mod/model_beta2.ml";
 	public static String ROCKIT_EVIDENCEFILEPATH =  TEMP_DIR + "evidence.db";
 	public static final String ROCKIT_LOCALOUT =  TEMP_DIR + "out.db";
 
