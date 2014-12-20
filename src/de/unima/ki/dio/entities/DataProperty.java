@@ -6,6 +6,10 @@ public class DataProperty extends Entity {
 	
 	private HashSet<Concept> domainConcept = new HashSet<Concept>();
 	
+	private String verbBaseForm = null;
+	private Datatype datatype = null;
+	private Label logicalRangeLabel = null;
+	
 	private boolean domainAnonymous = false;
 
 	public DataProperty(String uri, Label label) {
@@ -26,6 +30,30 @@ public class DataProperty extends Entity {
 
 	public void setDomainAnonymous(boolean domainAnonymous) {
 		this.domainAnonymous = domainAnonymous;
+	}
+
+	public String getVerbBaseForm() {
+		return verbBaseForm;
+	}
+
+	public void setVerbBaseForm(String verbBaseForm) {
+		this.verbBaseForm = verbBaseForm;
+	}
+
+	public Datatype getDatatype() {
+		return datatype;
+	}
+
+	public void setDatatype(Datatype datatype) {
+		this.datatype = datatype;
+	}
+
+	public Label getLogicalRangeLabel() {
+		return logicalRangeLabel;
+	}
+
+	public void setLogicalRangeLabel(Label logicalRangeLabel) {
+		this.logicalRangeLabel = logicalRangeLabel;
 	}
 	
 	

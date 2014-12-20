@@ -21,6 +21,9 @@ public class ObjectProperty extends Entity {
 	private Label domainLabel = null;
 	private Label rangeLabel = null;
 	
+	private Label logicalDomainLabel = null;
+	private Label logicalRangeLabel = null;
+	
 	public ObjectProperty(String uri, Label label) {
 		super(uri, label);
 	}
@@ -91,6 +94,22 @@ public class ObjectProperty extends Entity {
 			s = s + "\nRangeLabel: " + rangeLabel.toSpacedString();
 		}
 		return s;
+	}
+
+	public Label getLogicalDomainLabel() {
+		return logicalDomainLabel;
+	}
+
+	public void setLogicalDomainLabel(Label logicalDomainLabel) {
+		this.logicalDomainLabel = logicalDomainLabel;
+	}
+
+	public Label getLogicalRangeLabel() {
+		return logicalRangeLabel;
+	}
+
+	public void setLogicalRangeLabel(Label logicalRangeLabel) {
+		this.logicalRangeLabel = logicalRangeLabel;
 	}
 	
 
