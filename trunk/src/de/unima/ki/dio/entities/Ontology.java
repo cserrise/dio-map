@@ -12,6 +12,8 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataRange;
+import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
@@ -77,19 +79,19 @@ public class Ontology {
 		}
 		
 		//add Object Properties
-		for(OWLObjectProperty objProperty:ontologyOWL.getObjectPropertiesInSignature()){
-			if(objProperty.toString().startsWith(Settings.OWL_NS)){
+		for(OWLObjectProperty objPropertyOWL:ontologyOWL.getObjectPropertiesInSignature()){
+			if(objPropertyOWL.toString().startsWith(Settings.OWL_NS)){
 				continue;
 			}
-			ArrayList<Word> words = getLabelAsWordList(objProperty.getIRI());
+			ArrayList<Word> words = getLabelAsWordList(objPropertyOWL.getIRI());
 			Label objPropLabel = new Label(words);
-			ObjectProperty objProp = new ObjectProperty(objProperty.getIRI().toString(), objPropLabel);
+			ObjectProperty objProp = new ObjectProperty(objPropertyOWL.getIRI().toString(), objPropLabel);
 			
 			//DOMAIN
 			
 			HashSet<Concept> domainConcepts = new HashSet<Concept>();
 			
-			for(OWLClassExpression classEx:objProperty.getDomains(ontologyOWL)){
+			for(OWLClassExpression classEx:objPropertyOWL.getDomains(ontologyOWL)){
 				if(classEx.isAnonymous()){
 					objProp.setDomainAnonymous(true);
 					for(OWLClass domClass:classEx.getClassesInSignature()){
@@ -106,7 +108,7 @@ public class Ontology {
 			
 			HashSet<Concept> rangeConcepts = new HashSet<Concept>();
 			
-			for(OWLClassExpression classEx:objProperty.getRanges(ontologyOWL)){
+			for(OWLClassExpression classEx:objPropertyOWL.getRanges(ontologyOWL)){
 				if(classEx.isAnonymous()){
 					objProp.setRangeAnonymous(true);
 					for(OWLClass domClass:classEx.getClassesInSignature()){
@@ -133,7 +135,7 @@ public class Ontology {
 						for(int i = 0; i < taggedWordList.size(); i++){
 							if(taggedWordList.get(i).tag().contains("VB")){
 								objProp.setVerbBaseForm(m.lemma(taggedWordList.get(i).word(), taggedWordList.get(i).tag()));
-								break;
+								break;//depending of either emphasize earlier or later verbs 
 							}
 						}
 					}
@@ -149,7 +151,7 @@ public class Ontology {
 							countRange++;
 						}
 					}
-//					System.out.println(domainLabel.toSpacedString() + "D  " + rangeLabel.toSpacedString() + "R");
+//					System.out.println(domainLabel.toSpacedString() + "D  "+ objPropLabel.toSpacedString() + rangeLabel.toSpacedString() + "R");
 					int countDomainCriteria = 0;
 					int countRangeCriteria = 0;
 					//criteria 1 -> matching tokens with atleast more than 0 (favors range when equal)
@@ -170,7 +172,51 @@ public class Ontology {
 					}else if(countRangeCriteria > 0){
 						objProp.setRangeLabel(rangeLabel);
 					}
-
+					
+					Label logicalDomainLabel = null;
+					Label logicalRangeLabel = null;
+					ArrayList<Word> wordsForDomainLabel = new ArrayList<Word>();
+					ArrayList<Word> wordsForRangeLabel = new ArrayList<Word>();
+					int index = -1;
+					List<TaggedWord> taggedWordList = null;
+					for(List<HasWord> list:MaxentTagger.tokenizeText(new StringReader(objPropLabel.toSpacedString()))){
+						taggedWordList = postagger.tagSentence(list);
+						Morphology m = new Morphology();
+						for(int i = 0; i < taggedWordList.size(); i++){
+//							System.out.println(taggedWordList.get(i).word()+"_"+taggedWordList.get(i).tag());
+							if(taggedWordList.get(i).tag().contains("VB")){
+								index = i;
+								break;
+							}
+						}
+					}
+					if(index == -1){
+						break;
+					}else{
+						for(int i = index+1; i < taggedWordList.size(); i++){
+							String tag = taggedWordList.get(i).tag();
+							if(tag.contains("NN") || tag.contains("JJ")){
+								wordsForRangeLabel.add(Word.createWord(taggedWordList.get(i).word()));
+							}
+						}
+						if (index > 0){
+							for(int i = 0; i < index; i++){
+								String tag = taggedWordList.get(i).tag();
+								if(tag.contains("NN") || tag.contains("JJ")){
+									wordsForDomainLabel.add(Word.createWord(taggedWordList.get(i).word()));
+								}
+							}
+						}
+					}
+					
+					if(wordsForDomainLabel.size() > 0){
+						logicalDomainLabel = new Label(wordsForDomainLabel);
+						objProp.setLogicalDomainLabel(logicalDomainLabel);
+					}
+					if(wordsForRangeLabel.size() > 0){
+						logicalRangeLabel = new Label(wordsForRangeLabel);
+						objProp.setLogicalRangeLabel(logicalRangeLabel);
+					}		
 				}
 			}
 //			System.out.println(objProp.toInfoString());
@@ -203,7 +249,59 @@ public class Ontology {
 				}
 			}
 			dataProp.setDomainConcept(domainConcepts);
-
+			
+			//set verbbase form and get logicalrange
+			int index = -1;
+			List<TaggedWord> taggedWordList = null;
+			for(List<HasWord> list:MaxentTagger.tokenizeText(new StringReader(dataPropLabel.toSpacedString()))){
+				taggedWordList = postagger.tagSentence(list);
+				Morphology m = new Morphology();
+				for(int i = 0; i < taggedWordList.size(); i++){
+					if(taggedWordList.get(i).tag().contains("VB")){
+						dataProp.setVerbBaseForm(m.lemma(taggedWordList.get(i).word(), taggedWordList.get(i).tag()));
+						index = i;
+					}
+				}
+			}
+			
+			ArrayList<Word> wordsForRange = new ArrayList<Word>();
+			if(index > -1){
+				for(int i = index+1; i < taggedWordList.size(); i++){
+					wordsForRange.add(Word.createWord(taggedWordList.get(i).word()));
+				}
+			}else{
+				for(int i = 0; i < taggedWordList.size(); i++){
+					wordsForRange.add(Word.createWord(taggedWordList.get(i).word()));
+				}
+			}
+			
+			if(wordsForRange.size() > 0){
+				dataProp.setLogicalRangeLabel(new Label(wordsForRange));
+			}
+			
+			//define the datatype of the dataprop
+			for(OWLDataRange datatype:dataPropertyOWL.getRanges(ontologyOWL)){
+				if(!datatype.isDatatype()) break;
+				
+				String fragment = datatype.asOWLDatatype().getIRI().getFragment();
+				if(fragment.contains("date")){
+					dataProp.setDatatype(Datatype.DATE);
+				}else if(fragment.contains("string")){
+					dataProp.setDatatype(Datatype.STRING);
+				}else if(fragment.contains("int")){
+					dataProp.setDatatype(Datatype.INT);
+				}else if(fragment.contains("boolean")){
+					dataProp.setDatatype(Datatype.BOOLEAN);
+				}else if(fragment.contains("double")){
+					dataProp.setDatatype(Datatype.DOUBLE);
+				}else if(fragment.contains("float")){
+					dataProp.setDatatype(Datatype.FLOAT);
+				}else if(fragment.contains("long")){
+					dataProp.setDatatype(Datatype.LONG);
+				}
+			}
+			
+			this.addDataProperty(dataProp);
 		}
 			
 	}
@@ -278,6 +376,10 @@ public class Ontology {
 	
 	public void addObjectProperty(ObjectProperty objProperty){
 		this.entities.add(objProperty);
+	}
+	
+	public void addDataProperty(DataProperty dataProperty){
+		this.entities.add(dataProperty);
 	}
 	
 	public HashSet<Entity> getEntities() {

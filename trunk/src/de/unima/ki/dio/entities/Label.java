@@ -68,6 +68,7 @@ public class Label {
 	}
 	
 	public String toSpacedString() {
+		if(this.words.size() == 0) return "";
 		String ret = this.getWord(0).toString();
 		for (int i = 1; i < this.getNumberOfWords(); i++) {
 			ret = ret + " " + this.getWord(i);  
