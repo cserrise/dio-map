@@ -182,8 +182,12 @@ public class Ontology {
 					for(List<HasWord> list:MaxentTagger.tokenizeText(new StringReader(objPropLabel.toSpacedString()))){
 						taggedWordList = postagger.tagSentence(list);
 						Morphology m = new Morphology();
+						for(int i = 1; i < taggedWordList.size() - 1; i++){
+							if(taggedWordList.get(i).word().contains("of")){
+								objProp.setLogicalRangeLabel(new Label(Word.createWord(taggedWordList.get(i+1).word()), Word.createWord(taggedWordList.get(i-1).word())));
+							}
+						}
 						for(int i = 0; i < taggedWordList.size(); i++){
-//							System.out.println(taggedWordList.get(i).word()+"_"+taggedWordList.get(i).tag());
 							if(taggedWordList.get(i).tag().contains("VB")){
 								index = i;
 								break;
@@ -219,8 +223,12 @@ public class Ontology {
 					}		
 				}
 			}
-//			System.out.println(objProp.toInfoString());
-//			System.out.println();
+//			System.out.println(objProp.getLabels().iterator().next());
+//			if(objProp.getLogicalRangeLabel()!= null){
+//				System.out.println(objProp.getLogicalRangeLabel().toSpacedString());
+//			}
+			
+			
 			this.addObjectProperty(objProp);
 		}
 		
