@@ -173,6 +173,9 @@ public class Ontology {
 						objProp.setRangeLabel(rangeLabel);
 					}
 					
+					
+					//Ab hier neu
+					//Es wird die Object Property annotiert vom POS tagger und dann einmal geschaut wo "B of A -> AB" ist und einmal wo das verb steht und dann der index davon gespeichert.
 					Label logicalDomainLabel = null;
 					Label logicalRangeLabel = null;
 					ArrayList<Word> wordsForDomainLabel = new ArrayList<Word>();
@@ -194,6 +197,9 @@ public class Ontology {
 							}
 						}
 					}
+					//Wenn kein verb gefunden wurde ist der index immer noch -1 und es ist quasi nicht möglich zusagen was zur logical domain/range gehört. 
+					//Ausser du willst die Annahme treffen das dann tendenziell alles zur range gehört dann kannst du das hier ändern. Sonst wird nach wörter die formen von NN(noun)
+					//sind bzw. JJ(Adjektiven) gesucht. Und je nachdem ob sie vor oder nach dem gefundenen verb stehen der domain oder der range hinzugefügt.
 					if(index == -1){
 						break;
 					}else{
@@ -212,7 +218,7 @@ public class Ontology {
 							}
 						}
 					}
-					
+					//Wenn nix gefunden wurde wird nichts gemacht. Also ist das Attribut in der Object Property klasse null.
 					if(wordsForDomainLabel.size() > 0){
 						logicalDomainLabel = new Label(wordsForDomainLabel);
 						objProp.setLogicalDomainLabel(logicalDomainLabel);
@@ -222,13 +228,7 @@ public class Ontology {
 						objProp.setLogicalRangeLabel(logicalRangeLabel);
 					}		
 				}
-			}
-//			System.out.println(objProp.getLabels().iterator().next());
-//			if(objProp.getLogicalRangeLabel()!= null){
-//				System.out.println(objProp.getLogicalRangeLabel().toSpacedString());
-//			}
-			
-			
+			}			
 			this.addObjectProperty(objProp);
 		}
 		
@@ -259,6 +259,7 @@ public class Ontology {
 			dataProp.setDomainConcept(domainConcepts);
 			
 			//set verbbase form and get logicalrange
+			//Hier wird einmal die baseform für das verb gesetzt und geschaut wo das verb steht
 			int index = -1;
 			List<TaggedWord> taggedWordList = null;
 			for(List<HasWord> list:MaxentTagger.tokenizeText(new StringReader(dataPropLabel.toSpacedString()))){
@@ -271,7 +272,8 @@ public class Ontology {
 					}
 				}
 			}
-			
+			//Wenn kein Verb gefunden wurde also index noch -1 ist, nehm ich an das es keins gibt (ist oft so das die property nur "email" oder "name") heißt und füge das der logical range zu.
+			//Wenn ein verb gefunden wurde werden in der ganzen property nach nomen und adjektiven gesucht und diese hinzugefügt
 			ArrayList<Word> wordsForRange = new ArrayList<Word>();
 			if(index > -1){
 				for(int i = index+1; i < taggedWordList.size(); i++){
@@ -279,15 +281,18 @@ public class Ontology {
 				}
 			}else{
 				for(int i = 0; i < taggedWordList.size(); i++){
-					wordsForRange.add(Word.createWord(taggedWordList.get(i).word()));
+					if(taggedWordList.get(i).tag().contains("NN")||taggedWordList.get(i).tag().contains("JJ")){
+						wordsForRange.add(Word.createWord(taggedWordList.get(i).word()));
+					}					
 				}
 			}
-			
+			//Wenn bei beiden nichts gefunden wurde wird nichts gesetzt
 			if(wordsForRange.size() > 0){
 				dataProp.setLogicalRangeLabel(new Label(wordsForRange));
 			}
 			
 			//define the datatype of the dataprop
+			//Hier werden die datentypen gesetzt. 
 			for(OWLDataRange datatype:dataPropertyOWL.getRanges(ontologyOWL)){
 				if(!datatype.isDatatype()) break;
 				
