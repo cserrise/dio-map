@@ -78,7 +78,8 @@ public class MarkovMatcher extends Matcher {
 	}
 	
 	private void createGroundedRules() {
-		writeGroundedRulesLCEQ(ont1.getEntities(), "1", ont2.getEntities(), "2");
+
+		// writeGroundedRulesLCEQ(ont1.getEntities(), "1", ont2.getEntities(), "2");
 	}
 	
 	
@@ -87,8 +88,12 @@ public class MarkovMatcher extends Matcher {
 		
 		for (Entity e1 : entities1) {
 			for (Entity e2 : entities2) {
+				
 				ArrayList<String> atoms = new ArrayList<String>();
 				atoms.add(groundAtom("!conceptEQ", new String[]{e1.getUri(), e2.getUri()}));
+				
+			
+				
 				for (Label l1 : e1.getLabels()) {
 					for (Label l2 : e2.getLabels()) {
 						atoms.add(groundAtom("labelEQ", new String[]{l1.getMLLabel(ont1Id), l2.getMLLabel(ont2Id)}));
@@ -123,20 +128,49 @@ public class MarkovMatcher extends Matcher {
 		
 	}
 
+	/**
+	* Generates evidence that desrcibes concepts (properties) and their labels  and labels and their words.
+	* 
+	* @param entities The set of entities for which this evidence is generated.
+	* @param ontId The id of the ontolgy where the entities origin from
+	*/
 	private void writeEvidenceEntities(HashSet<Entity> entities, String ontId) {
 		this.writeComment("entities in ontology " + ontId);
+		
+		
 		for (Entity e : entities) {
-			for (Label l : e.getLabels()) {
-				int numOfWords = l.getNumberOfWords();
-				if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-					ArrayList<String> paramsC2L = new ArrayList<String>();
-					paramsC2L.add(e.getUri());
-					paramsC2L.add(l.getMLLabel(ontId));
-					this.writelnGroundAtom("conceptHasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
-					ArrayList<String> paramsL2W = new ArrayList<String>();
-					paramsL2W.add(l.getMLLabel(ontId));
-					paramsL2W.addAll(l.getMLWords(ontId));
-					this.writelnGroundAtom("has" + numOfWords + "Word_o" + ontId , paramsL2W.toArray(new String[paramsL2W.size()]));
+			// TODO extend this for properties
+			if (e instanceof Concept) {
+				for (Label l : e.getLabels()) {
+					
+					int numOfWords = l.getNumberOfWords();
+					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+						ArrayList<String> paramsC2L = new ArrayList<String>();
+						paramsC2L.add(e.getUri());
+						paramsC2L.add(l.getMLLabel(ontId));
+						this.writelnGroundAtom("conceptHasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
+						ArrayList<String> paramsL2W = new ArrayList<String>();
+						paramsL2W.add(l.getMLLabel(ontId));
+						paramsL2W.addAll(l.getMLWords(ontId));
+						this.writelnGroundAtom("has" + numOfWords + "Word_o" + ontId , paramsL2W.toArray(new String[paramsL2W.size()]));
+					}
+				}
+			}
+			
+			if (e instanceof ObjectProperty) {
+				for (Label l : e.getLabels()) {
+					System.out.println("LABEL: "  + l);
+					int numOfWords = l.getNumberOfWords();
+					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+						ArrayList<String> paramsC2L = new ArrayList<String>();
+						paramsC2L.add(e.getUri());
+						paramsC2L.add(l.getMLLabel(ontId));
+						this.writelnGroundAtom("opropHasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
+						ArrayList<String> paramsL2W = new ArrayList<String>();
+						paramsL2W.add(l.getMLLabel(ontId));
+						paramsL2W.addAll(l.getMLWords(ontId));
+						this.writelnGroundAtom("has" + numOfWords + "Word_o" + ontId , paramsL2W.toArray(new String[paramsL2W.size()]));
+					}
 				}
 			}
 		}

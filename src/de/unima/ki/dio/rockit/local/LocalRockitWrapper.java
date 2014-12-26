@@ -63,7 +63,7 @@ public class LocalRockitWrapper implements RockitWrapper{
 	    RockitResult rr = new RockitResult();
 		try {
 			br = new BufferedReader(new FileReader(outPath));
-	        String line = br.readLine();
+	        String line;
 	        while (null != (line = br.readLine())) {
 	            // line = br.readLine();
 	           //  System.out.println("LINE:" + line);
