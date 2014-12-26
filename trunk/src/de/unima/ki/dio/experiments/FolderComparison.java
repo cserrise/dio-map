@@ -16,7 +16,7 @@ import de.unima.ki.dio.matcher.alignment.Correspondence;
 public class FolderComparison {
 	
 	public static String folder1 = "exp/results/markov-x30-minus30/";
-	public static String folder2 = "exp/results/simple-plural/";
+	public static String folder2 = "exp/results/temp/";
 	public static String refFolder = "exp/conference/references/";
 	
 	public static Alignment folder1Alignment = new Alignment();

@@ -20,13 +20,14 @@ public class Settings {
 	// is the following one the really learge one?
 	public static String DISCO_DIRECTORY = DISCO_DIRECTORY_WIKI;
 	
-	
+	// the MOST IMPORTANT params are insed the model
+	public static final String ROCKIT_MODELFILEPATH = "mod/model_beta2.ml";
 
 	// similarity thresholds
 	public static double DISCO_THRESHOLD = -0.1;
 	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
 	
-	
+	// [-1.3 ... 0.7]
 	// span for similarities above the threshold
 	public static double SIM_LOWER_BOUND = -1.3;
 	public static double SIM_UPPER_BOUND = 0.7;
@@ -40,7 +41,7 @@ public class Settings {
 	// settings relavant for rockit
 	public static final String ROCKIT_ENDPOINT = "xxxx";
 	public static final double ROCKIT_GAP = 0.0000000001; 
-	public static final String ROCKIT_MODELFILEPATH = "mod/model_beta2.ml";
+	
 	public static String ROCKIT_EVIDENCEFILEPATH =  TEMP_DIR + "evidence.db";
 	public static final String ROCKIT_LOCALOUT =  TEMP_DIR + "out.db";
 

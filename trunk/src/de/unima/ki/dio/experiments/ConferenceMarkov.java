@@ -17,8 +17,10 @@ public class ConferenceMarkov {
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
+	private static String outputPath = "exp/results/temp/";
 	
 	public static void main(String[] args) throws DioException {
+		
 		
 		String[] ontIds = {
 			"cmt",
@@ -29,6 +31,16 @@ public class ConferenceMarkov {
 			"iasted",
 			"sigkdd"
 		};
+		
+		
+		
+		/*
+		String[] ontIds = {
+				"cmt",
+				"conference"
+		};
+		*/
+		
 		
 		String refp = Settings.ROCKIT_EVIDENCEFILEPATH;
 		for (int i = 0; i < ontIds.length - 1; i++) {
@@ -42,7 +54,7 @@ public class ConferenceMarkov {
 				runTestcase(ont1Id, ont2Id);
 				
 				// System.exit(1);
-				System.out.println("Died due to System.exit()!");
+				// System.out.println("Died due to System.exit()!");
 			}			
 		}
 	}
@@ -81,7 +93,7 @@ public class ConferenceMarkov {
 			
 		}
 		System.out.println();		
-		markovAli.write("exp/results/temp/" + ont1Id + "-" + ont2Id + ".rdf");
+		markovAli.write(outputPath + ont1Id + "-" + ont2Id + ".rdf");
 
 
 	}

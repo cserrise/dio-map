@@ -1,5 +1,9 @@
 package de.unima.ki.dio.rockit.remote;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -51,6 +55,39 @@ public class RockitResult {
 			}
 		}
 		return atomsOfPredicate;
+		
+	}
+	
+	public static void main(String[] args) {
+		RockitResult rr = new RockitResult();
+		BufferedReader br;
+		try {
+			br = new BufferedReader(new FileReader("tmp/out.db"));
+	        String line = br.readLine();
+	        while (null != (line = br.readLine())) {
+	            // line = br.readLine();
+	           System.out.println("LINE:" + line);
+	            rr.addLine(line);
+	        }
+	        ArrayList<String[]> values = rr.getAtomsOfPredicate("conceptEQ");
+	        for (String[] value : values) {
+	        	System.out.println(value[0] + " ::: "+ value[1]);
+	        	
+	        	
+	        }
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        
+        
+    
+		
+		
 		
 	}
 
