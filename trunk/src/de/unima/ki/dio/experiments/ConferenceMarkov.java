@@ -17,7 +17,7 @@ public class ConferenceMarkov {
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
-	private static String outputPath = "exp/results/temp/";
+	private static String outputPath = "exp/results/temp-xmas2/";
 	
 	public static void main(String[] args) throws DioException {
 		
@@ -34,12 +34,14 @@ public class ConferenceMarkov {
 		
 		
 		
+		
 		/*
 		String[] ontIds = {
 				"cmt",
 				"conference"
 		};
 		*/
+		
 		
 		
 		String refp = Settings.ROCKIT_EVIDENCEFILEPATH;
@@ -60,7 +62,7 @@ public class ConferenceMarkov {
 	}
 
 	private static void runTestcase(String ont1Id, String ont2Id) throws DioException, AlignmentException {
-		System.out.print(ont1Id + "\t" + ont2Id + "\t");
+		System.out.println("TESTCASE: " + ont1Id + "-" + ont2Id);
 		String ont1Path = ontPath + ont1Id + ".owl";
 		String ont2Path = ontPath + ont2Id + ".owl";
 		String refPath = refXPath + ont1Id + "-"  + ont2Id + ".rdf";
@@ -69,31 +71,15 @@ public class ConferenceMarkov {
 		Ontology ont2 = new Ontology(ont2Path);
 		
 		Matcher markov = new MarkovMatcher();
-		Matcher simple = new SimpleMatcher();
 		
 		Alignment markovAli = markov.match(ont1, ont2);
-		Alignment simpleAli = simple.match(ont1, ont2);
-		simpleAli.applyThreshold(0.0);
-		Alignment simpleAli11  = Greedy11.filter(simpleAli);
-		
 		Alignment reference = new Alignment(refPath);
-		
-	
-		Characteristic markovC=  new Characteristic(markovAli, reference);
-		Characteristic simpleC11=  new Characteristic(simpleAli11, reference);
-		
-		if  (markovC.getNumOfRulesCorrect() != simpleC11.getNumOfRulesCorrect() || markovC.getNumOfRulesMatcher() != simpleC11.getNumOfRulesMatcher()) {
-			System.out.print(markovC.toShortDesc() + "\t" + simpleC11.toShortDesc());
-			System.out.println("");
-			System.out.println("In markov not in simple11:\n" + markovAli.minus(simpleAli11));
-			System.out.println("In simple11 not in markov:\n" + simpleAli11.minus(markovAli));
-		}
-		else {
-			System.out.print("same");
-			
-		}
-		System.out.println();		
+		Characteristic markovC =  new Characteristic(markovAli, reference);
 		markovAli.write(outputPath + ont1Id + "-" + ont2Id + ".rdf");
+		
+		System.out.println("CHARACTERISTICS:\n" + markovC); 
+		System.out.println("ALIGNMENT:\n" +markovAli);
+		
 
 
 	}

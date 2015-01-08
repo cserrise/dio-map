@@ -16,8 +16,8 @@ import com.googlecode.rockit.exception.SolveException;
 
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Correspondence;
+import de.unima.ki.dio.rockit.RockitResult;
 import de.unima.ki.dio.rockit.RockitWrapper;
-import de.unima.ki.dio.rockit.remote.RockitResult;
 
 public class LocalRockitWrapper implements RockitWrapper{
 
@@ -79,7 +79,15 @@ public class LocalRockitWrapper implements RockitWrapper{
 		
 		
 		ArrayList<String[]> ce = rr.getAtomsOfPredicate("conceptEQ");
-		for (String[] values : ce) {
+		ArrayList<String[]> dpe = rr.getAtomsOfPredicate("dpropEQ");
+		ArrayList<String[]> ope = rr.getAtomsOfPredicate("opropEQ");
+		ArrayList<String[]> equalities = new ArrayList<String[]>();
+		equalities.addAll(ce);
+		equalities.addAll(dpe);
+		equalities.addAll(ope);
+		
+		
+		for (String[] values : equalities) {
 			Correspondence c = new Correspondence(values[0], values[1]);
 			alignment.add(c);
 		}

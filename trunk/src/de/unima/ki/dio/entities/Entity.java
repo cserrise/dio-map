@@ -40,4 +40,11 @@ public abstract class Entity {
 		return max;
 	}
 
+	public void resetLabel(Label label) {
+		this.labels.clear();
+		this.labels.add(label);
+		label.addEntity(this);
+		
+	}
+
 }

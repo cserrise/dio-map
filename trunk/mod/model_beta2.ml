@@ -64,6 +64,12 @@ blindWord_o2(Word2)
 |c_o1| conceptEQ(c_o1,c_o2) <= 1
 |c_o2| conceptEQ(c_o1,c_o2) <= 1
 
+|p_o1| dpropEQ(p_o1,p_o2) <= 1
+|p_o2| dpropEQ(p_o1,p_o2) <= 1
+
+|p_o1| opropEQ(p_o1,p_o2) <= 1
+|p_o2| opropEQ(p_o1,p_o2) <= 1
+
 // add this score for every concept equiv (= correspondence) that was generated 
 // IS IT NEEDED? Its seems so ...
 0.2 conceptEQ(c1, c2)
