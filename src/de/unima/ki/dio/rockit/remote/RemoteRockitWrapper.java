@@ -6,6 +6,7 @@ import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.exceptions.RockitException;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Correspondence;
+import de.unima.ki.dio.rockit.RockitResult;
 import de.unima.ki.dio.rockit.RockitWrapper;
 
 public class RemoteRockitWrapper implements RockitWrapper {

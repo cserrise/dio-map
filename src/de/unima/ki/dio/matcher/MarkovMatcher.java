@@ -22,8 +22,8 @@ import de.unima.ki.dio.exceptions.RockitException;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Correspondence;
 import de.unima.ki.dio.rockit.RockitAdapter;
+import de.unima.ki.dio.rockit.RockitResult;
 import de.unima.ki.dio.rockit.remote.RemoteRockit;
-import de.unima.ki.dio.rockit.remote.RockitResult;
 import de.unima.ki.dio.similarity.*;
 
 
@@ -139,7 +139,20 @@ public class MarkovMatcher extends Matcher {
 		
 		
 		for (Entity e : entities) {
-			// TODO extend this for properties
+
+			if (e instanceof DataProperty) {
+				for (Label l : e.getLabels()) {
+					LabelConverter.overwriteBySimplifiedLabel(e, l);
+				}
+			}
+			
+			if (e instanceof ObjectProperty) {
+				for (Label l : e.getLabels()) {
+					LabelConverter.overwriteBySimplifiedLabel(e, l);
+				}
+			}
+			
+
 			if (e instanceof Concept) {
 				for (Label l : e.getLabels()) {
 					
@@ -157,15 +170,16 @@ public class MarkovMatcher extends Matcher {
 				}
 			}
 			
-			if (e instanceof ObjectProperty) {
+			
+			if (e instanceof DataProperty) {
 				for (Label l : e.getLabels()) {
-					System.out.println("LABEL: "  + l);
+					System.out.println("LABEL of data property: "  + l);
 					int numOfWords = l.getNumberOfWords();
 					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
 						ArrayList<String> paramsC2L = new ArrayList<String>();
 						paramsC2L.add(e.getUri());
 						paramsC2L.add(l.getMLLabel(ontId));
-						this.writelnGroundAtom("opropHasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
+						this.writelnGroundAtom("dpropHasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
 						ArrayList<String> paramsL2W = new ArrayList<String>();
 						paramsL2W.add(l.getMLLabel(ontId));
 						paramsL2W.addAll(l.getMLWords(ontId));
@@ -173,6 +187,24 @@ public class MarkovMatcher extends Matcher {
 					}
 				}
 			}
+			
+			if (e instanceof ObjectProperty) {
+				for (Label l : e.getLabels()) {
+					System.out.println("LABEL of object property: "  + l);
+					int numOfWords = l.getNumberOfWords();
+					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+						ArrayList<String> paramsC2L = new ArrayList<String>();
+						paramsC2L.add(e.getUri());
+						paramsC2L.add(l.getMLLabel(ontId));
+						this.writelnGroundAtom("dpropHasLabel_o" + ontId, paramsC2L.toArray(new String[paramsC2L.size()]));
+						ArrayList<String> paramsL2W = new ArrayList<String>();
+						paramsL2W.add(l.getMLLabel(ontId));
+						paramsL2W.addAll(l.getMLWords(ontId));
+						this.writelnGroundAtom("has" + numOfWords + "Word_o" + ontId , paramsL2W.toArray(new String[paramsL2W.size()]));
+					}
+				}
+			}
+		
 		}
 		this.writeln();
 	}
@@ -236,15 +268,28 @@ public class MarkovMatcher extends Matcher {
 		RockitResult rr = rockit.run();
 		
 		ArrayList<String[]> ce = rr.getAtomsOfPredicate("conceptEQ");
+		ArrayList<String[]> dpe = rr.getAtomsOfPredicate("dpropEQ");
+		ArrayList<String[]> ope = rr.getAtomsOfPredicate("opropEQ");
+		
+		ArrayList<String[]> equalities = new ArrayList<String[]>();
+		equalities.addAll(ce);
+		equalities.addAll(dpe);
+		equalities.addAll(ope);
 		
 		System.out.println("Markov Matcher Objective: " + rr.getObjective());
-		for (String[] values : ce) {
+		for (String[] values : equalities) {
 			Correspondence c = new Correspondence(values[0], values[1]);
 			alignment.add(c);
 		}
 		
 		for (String[] values : ce) {
 			out.println("conceptEQ: " + values[0] + ", " +values[1]);
+		}
+		for (String[] values : dpe) {
+			out.println("dpropEQ: " + values[0] + ", " +values[1]);
+		}
+		for (String[] values : ope) {
+			out.println("opropEQ: " + values[0] + ", " +values[1]);
 		}
 		ArrayList<String[]> le = rr.getAtomsOfPredicate("labelEQ");
 		for (String[] values : le) {

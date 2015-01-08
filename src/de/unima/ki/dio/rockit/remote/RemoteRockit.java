@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.exceptions.RockitException;
+import de.unima.ki.dio.rockit.RockitResult;
 
 public class RemoteRockit {
 	
