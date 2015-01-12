@@ -21,7 +21,7 @@ public class ConferenceMarkov {
 	
 	public static void main(String[] args) throws DioException {
 		
-		
+		/*
 		String[] ontIds = {
 			"cmt",
 			"conference",
@@ -31,16 +31,17 @@ public class ConferenceMarkov {
 			"iasted",
 			"sigkdd"
 		};
+		*/
 		
 		
 		
 		
-		/*
+		
 		String[] ontIds = {
 				"cmt",
 				"conference"
 		};
-		*/
+		
 		
 		
 		
