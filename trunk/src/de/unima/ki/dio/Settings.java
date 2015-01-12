@@ -21,7 +21,7 @@ public class Settings {
 	public static String DISCO_DIRECTORY = DISCO_DIRECTORY_WIKI;
 	
 	// the MOST IMPORTANT params are insed the model
-	public static final String ROCKIT_MODELFILEPATH = "mod/model_beta2.ml";
+	public static final String ROCKIT_MODELFILEPATH = "mod/model_2015_logic_coherence.ml";
 
 	// similarity thresholds
 	public static double DISCO_THRESHOLD = -0.1;
@@ -49,7 +49,7 @@ public class Settings {
 
 	public static final int MAX_NUM_OF_WORDS_IN_LABEL = 3;
 
-	public static boolean ENSURE_COHERENCY = false;
+	public static boolean ENSURE_COHERENCY = true;
 	
 	
 	
