@@ -33,6 +33,7 @@ public class Ontology {
 	HashSet<Entity> entities = new HashSet<Entity>();
 	HashMap<String, Concept> uri2Concept = new HashMap<String, Concept>();  
 	private MaxentTagger postagger = new MaxentTagger("nlp/english-caseless-left3words-distsim.tagger");
+	private OWLOntology ontologyOWL = null;
 	/**
 	* Constructs an internal representation of the ontology in terms of storing all entities of the ontology
 	* with their corresponding labels, which again consist of a list of words.
@@ -46,7 +47,6 @@ public class Ontology {
 		// TODO implement this
 		
 		OWLOntologyManager manager;
-		OWLOntology ontologyOWL = null;
 		manager = OWLManager.createOWLOntologyManager();
 		OWLReasonerFactory reasonerFactory = new StructuralReasonerFactory();
 		
@@ -168,9 +168,9 @@ public class Ontology {
 					}
 					//Decision -> favors rangecritera when equal. 
 					if(countDomainCriteria > countRangeCriteria && countDomainCriteria > 0){
-						objProp.setDomainLabel(domainLabel);
+						objProp.setDomainLabelX(domainLabel);
 					}else if(countRangeCriteria > 0){
-						objProp.setRangeLabel(rangeLabel);
+						objProp.setRangeLabelX(rangeLabel);
 					}
 					
 					
@@ -187,7 +187,7 @@ public class Ontology {
 						Morphology m = new Morphology();
 						for(int i = 1; i < taggedWordList.size() - 1; i++){
 							if(taggedWordList.get(i).word().contains("of")){
-								objProp.setLogicalRangeLabel(new Label(Word.createWord(taggedWordList.get(i+1).word()), Word.createWord(taggedWordList.get(i-1).word())));
+								objProp.setRangeLabel(new Label(Word.createWord(taggedWordList.get(i+1).word(), getWordtypeForTag(taggedWordList.get(i+1).tag())), Word.createWord(taggedWordList.get(i-1).word(), getWordtypeForTag(taggedWordList.get(i-1).tag()))));
 							}
 						}
 						for(int i = 0; i < taggedWordList.size(); i++){
@@ -206,14 +206,14 @@ public class Ontology {
 						for(int i = index+1; i < taggedWordList.size(); i++){
 							String tag = taggedWordList.get(i).tag();
 							if(tag.contains("NN") || tag.contains("JJ")){
-								wordsForRangeLabel.add(Word.createWord(taggedWordList.get(i).word()));
+								wordsForRangeLabel.add(Word.createWord(taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));
 							}
 						}
 						if (index > 0){
 							for(int i = 0; i < index; i++){
 								String tag = taggedWordList.get(i).tag();
 								if(tag.contains("NN") || tag.contains("JJ")){
-									wordsForDomainLabel.add(Word.createWord(taggedWordList.get(i).word()));
+									wordsForDomainLabel.add(Word.createWord(taggedWordList.get(i).word(),getWordtypeForTag(taggedWordList.get(i).tag())));
 								}
 							}
 						}
@@ -221,11 +221,42 @@ public class Ontology {
 					//Wenn nix gefunden wurde wird nichts gemacht. Also ist das Attribut in der Object Property klasse null.
 					if(wordsForDomainLabel.size() > 0){
 						logicalDomainLabel = new Label(wordsForDomainLabel);
-						objProp.setLogicalDomainLabel(logicalDomainLabel);
+						objProp.setDomainLabel(logicalDomainLabel);
+						
+						for(OWLClass classy:ontologyOWL.getClassesInSignature()){
+							String fragment = classy.getIRI().getFragment();
+							if(wordsForDomainLabel.size() != fragment.split(Settings.REGEX_FOR_SPLIT).length) continue;
+							fragment = fragment.toLowerCase();
+							boolean check = true;
+							for(Word word:wordsForDomainLabel){
+								if(!fragment.contains(word.getToken())){
+									check = false;
+								}
+							}
+							if(check){
+								objProp.setConceptOfDomainLabel(getConceptByUri(classy.getIRI().toURI().toString()));
+							}
+						}
+						
 					}
 					if(wordsForRangeLabel.size() > 0){
 						logicalRangeLabel = new Label(wordsForRangeLabel);
-						objProp.setLogicalRangeLabel(logicalRangeLabel);
+						objProp.setRangeLabel(logicalRangeLabel);
+						
+						for(OWLClass classy:ontologyOWL.getClassesInSignature()){
+							String fragment = classy.getIRI().getFragment();
+							if(wordsForRangeLabel.size() != fragment.split(Settings.REGEX_FOR_SPLIT).length) continue;
+							fragment = fragment.toLowerCase();
+							boolean check = true;
+							for(Word word:wordsForRangeLabel){
+								if(!fragment.contains(word.getToken())){
+									check = false;
+								}
+							}
+							if(check){
+								objProp.setConceptOfRangeLabel(getConceptByUri(classy.getIRI().toURI().toString()));
+							}
+						}
 					}		
 				}
 			}			
@@ -277,13 +308,13 @@ public class Ontology {
 			ArrayList<Word> wordsForRange = new ArrayList<Word>();
 			if(index > -1){
 				for(int i = index+1; i < taggedWordList.size(); i++){
-					wordsForRange.add(Word.createWord(taggedWordList.get(i).word()));
+					wordsForRange.add(Word.createWord(taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));	
 				}
 			}else{
 				for(int i = 0; i < taggedWordList.size(); i++){
-					if(taggedWordList.get(i).tag().contains("NN")||taggedWordList.get(i).tag().contains("JJ")){
-						wordsForRange.add(Word.createWord(taggedWordList.get(i).word()));
-					}					
+					if(taggedWordList.get(i).tag().contains("NN") || taggedWordList.get(i).tag().contains("JJ")){
+						wordsForRange.add(Word.createWord(taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));
+					}
 				}
 			}
 			//Wenn bei beiden nichts gefunden wurde wird nichts gesetzt
@@ -413,10 +444,28 @@ public class Ontology {
 		String[] tokens = iri.getFragment().split(Settings.REGEX_FOR_SPLIT);
 		String sentence = "";
 		for(String token:tokens){
-			sentence = sentence + " " +token;
-			words.add(Word.createWord(token));
-		}		
+			sentence = sentence + " " + token;
+		}	
+		for(List<HasWord> list:MaxentTagger.tokenizeText(new StringReader(sentence))){
+			List<TaggedWord> taggedWordList = postagger.tagSentence(list);
+			Morphology m = new Morphology();
+			for(int i = 0; i < taggedWordList.size(); i++){
+				words.add(Word.createWord(taggedWordList.get(i).word(), this.getWordtypeForTag(taggedWordList.get(i).tag())));		
+			}
+		}
 		return words;
+	}
+	
+	private WordType getWordtypeForTag(String tag){
+		if(tag.contains("VB")){
+			return WordType.VERB;
+		}else if(tag.contains("NN")){
+			return WordType.NOUN;
+		}else if(tag.contains("JJ")){
+			return WordType.ADJECTIVE;
+		}else{
+			return WordType.UNKNOWN;
+		}
 	}
 	
 

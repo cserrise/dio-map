@@ -56,7 +56,20 @@ public class DataProperty extends Entity {
 		this.logicalRangeLabel = logicalRangeLabel;
 	}
 	
-	
+	public static boolean isDatatypeCompatibleWithDatatype(Datatype datatype1, Datatype datatype2){
+		//0 = Date, 1 = String, 2 = Int, 3 = Boolean, 4 = Double, 5 = Float, 6 = Long
+		//SAME horizontally as vertically
+		boolean[][] compatibilityMatrix = new boolean[][]{
+			{true,  true,  false, false, false, false, false},
+			{true,  true,  true,  false, true,  true,  true },
+			{false, true,  true,  false, true,  true,  true },
+			{false, false, false, true,  false, false, false},
+			{false, true,  true,  false, true,  true,  true },
+			{false, true,  true,  false, true,  true,  true },
+			{false, true,  true,  false, true,  true,  true }
+		};
+		return compatibilityMatrix[datatype1.ordinal()][datatype2.ordinal()];
+	}
 	
 	
 	
