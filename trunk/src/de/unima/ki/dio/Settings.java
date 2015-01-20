@@ -21,16 +21,17 @@ public class Settings {
 	public static String DISCO_DIRECTORY = DISCO_DIRECTORY_WIKI;
 	
 	// the MOST IMPORTANT params are insed the model
-	public static final String ROCKIT_MODELFILEPATH = "mod/model_2015_logic_coherence.ml";
-
+	public static final String ROCKIT_MODELFILEPATH = "mod/model_2015_strict.ml";
+	// public static final String ROCKIT_MODELFILEPATH = "mod/model_beta2.ml";
+	
 	// similarity thresholds
 	public static double DISCO_THRESHOLD = -0.1;
 	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
 	
 	// [-1.3 ... 0.7]
 	// span for similarities above the threshold
-	public static double SIM_LOWER_BOUND = -1.3;
-	public static double SIM_UPPER_BOUND = 0.7;
+	public static double SIM_LOWER_BOUND = -1.0;
+	public static double SIM_UPPER_BOUND = 0.0;
 	
 	
 	public static final String TEMP_DIR = "tmp/";
@@ -50,6 +51,10 @@ public class Settings {
 	public static final int MAX_NUM_OF_WORDS_IN_LABEL = 3;
 
 	public static boolean ENSURE_COHERENCY = true;
+	
+	public static final String SUFFIX = "xyxyx";
+
+	public static final int MAX_NUM_OF_SIMILARITIES = 5;
 	
 	
 	

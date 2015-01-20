@@ -17,30 +17,56 @@ public class ConferenceMarkov {
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
-	private static String outputPath = "exp/results/temp-xmas2/";
+	private static String outputPath = "exp/results/strict-2015-5/";
 	
 	public static void main(String[] args) throws DioException {
 		
+		// open issues
+		// 1: the problem with the doubled has_title (http://cmt#title = http://confOf#hasTitle)
+		// 2a: the problem with the non existing labels
+		// 2b: the problem 
+		
+		
 		/*
 		String[] ontIds = {
-			"cmt",
-			"conference",
-			"confof",
-			"edas",
-			"ekaw",
-			"iasted",
-			"sigkdd"
+				"conference",
+				"iasted"
 		};
+		
 		*/
 		
 		
 		
 		
 		
+		
+	
+		String[] ontIds = {
+			// "cmt",
+			// "conference",
+			"confof",
+			"edas",
+			//"ekaw",
+			//"iasted",
+			//"sigkdd"
+		};
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		/*
 		String[] ontIds = {
 				"cmt",
-				"conference"
+				"ekaw"
 		};
+		*/
 		
 		
 		
@@ -76,10 +102,16 @@ public class ConferenceMarkov {
 		Alignment markovAli = markov.match(ont1, ont2);
 		Alignment reference = new Alignment(refPath);
 		Characteristic markovC =  new Characteristic(markovAli, reference);
+		
+		
 		markovAli.write(outputPath + ont1Id + "-" + ont2Id + ".rdf");
 		
 		System.out.println("CHARACTERISTICS:\n" + markovC); 
+		
+		markovAli.sortDescending();
+		reference.sortDescending();
 		System.out.println("ALIGNMENT:\n" +markovAli);
+		System.out.println("\nREFERENCE:\n" +reference);
 		
 
 

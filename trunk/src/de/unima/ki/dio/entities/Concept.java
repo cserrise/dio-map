@@ -23,7 +23,7 @@ public class Concept extends Entity {
 	}
 	
 	/**
-	* Adds a concept c that is dicjoint with this concept.
+	* Adds a concept c that is disjoint with this concept.
 	*  
 	* @param c The sub concept.
 	*/

@@ -23,5 +23,20 @@
 	<classpathentry kind="lib" path="lib/rockit/ST4-4.0.4.jar"/>
 	<classpathentry kind="lib" path="lib/rockit/stringtemplate-3.2.1.jar"/>
 	<classpathentry kind="lib" path="lib/rockit/gurobi563-rockit.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/aterm-java-1.6.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-cli.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-core.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-datatypes.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-dig.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-el.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-explanation.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-jena.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-modularity.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-owlapiv3.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-pellint.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-query.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/pellet-rules.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230/servlet.jar"/>
+	<classpathentry kind="lib" path="lib/pelletv230-libs/jgrapht-jdk1.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
