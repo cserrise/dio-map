@@ -22,6 +22,8 @@ import org.semanticweb.owlapi.reasoner.OWLReasoner;
 import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
 import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 
+import com.clarkparsia.pellet.owlapiv3.PelletReasonerFactory;
+
 import de.unima.ki.dio.Settings;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.TaggedWord;
@@ -29,9 +31,20 @@ import edu.stanford.nlp.process.Morphology;
 import edu.stanford.nlp.tagger.maxent.MaxentTagger;
 
 public class Ontology {
+	
+	// used for creating unique ids for labels that appear multiple times in the same ontology
+	
+	private int idcounter = 1;
+	private HashSet<String> labelStore = new HashSet<String>();
+	private static final String SUFFIX = "xyxyx";
+
 
 	HashSet<Entity> entities = new HashSet<Entity>();
 	HashMap<String, Concept> uri2Concept = new HashMap<String, Concept>();  
+	HashMap<String, ObjectProperty> uri2ObjectProperty = new HashMap<String, ObjectProperty>();  
+	HashMap<String, DataProperty> uri2DataProperty = new HashMap<String, DataProperty>();  
+	
+	
 	private MaxentTagger postagger = new MaxentTagger("nlp/english-caseless-left3words-distsim.tagger");
 	private OWLOntology ontologyOWL = null;
 	/**
@@ -48,13 +61,14 @@ public class Ontology {
 		
 		OWLOntologyManager manager;
 		manager = OWLManager.createOWLOntologyManager();
-		OWLReasonerFactory reasonerFactory = new StructuralReasonerFactory();
-		
+		PelletReasonerFactory reasonerFactory =  new PelletReasonerFactory();
 		try {
 			ontologyOWL = manager.loadOntologyFromOntologyDocument(new File(filepath));
 		} catch (OWLOntologyCreationException e) {
 			e.printStackTrace();
 		}
+		
+		//this.reasoner = reasonerFactory.createReasoner(ontology);
 		OWLReasoner reasoner = reasonerFactory.createReasoner(ontologyOWL);
 		
 		
@@ -64,6 +78,8 @@ public class Ontology {
 				continue;
 			}
 			ArrayList<Word> words = getLabelAsWordList(classy.getIRI());
+			if (labelStore.contains(words.toString())) { makeNonUniqueWordsUnique(words); }
+			else { labelStore.add(words.toString()); }
 			Label label = new Label(words);
 			Concept concept = new Concept(classy.getIRI().toString(), label);
 			this.addConcept(concept);
@@ -78,12 +94,18 @@ public class Ontology {
 			addSemantics(reasoner, classy, concept);
 		}
 		
-		//add Object Properties
+		//add object properties
 		for(OWLObjectProperty objPropertyOWL:ontologyOWL.getObjectPropertiesInSignature()){
 			if(objPropertyOWL.toString().startsWith(Settings.OWL_NS)){
 				continue;
 			}
+			
 			ArrayList<Word> words = getLabelAsWordList(objPropertyOWL.getIRI());
+			if (labelStore.contains(words.toString())) { makeNonUniqueWordsUnique(words); }
+			else { labelStore.add(words.toString()); }
+			
+			
+			
 			Label objPropLabel = new Label(words);
 			ObjectProperty objProp = new ObjectProperty(objPropertyOWL.getIRI().toString(), objPropLabel);
 			
@@ -269,6 +291,8 @@ public class Ontology {
 				continue;
 			}
 			ArrayList<Word> words = getLabelAsWordList(dataPropertyOWL.getIRI());
+			if (labelStore.contains(words.toString())) { makeNonUniqueWordsUnique(words); }
+			else { labelStore.add(words.toString()); }
 			Label dataPropLabel = new Label(words);
 			DataProperty dataProp = new DataProperty(dataPropertyOWL.getIRI().toString(), dataPropLabel);
 			
@@ -466,6 +490,17 @@ public class Ontology {
 		}else{
 			return WordType.UNKNOWN;
 		}
+	}
+	
+	private void makeNonUniqueWordsUnique(ArrayList<Word> words) {
+		System.out.println("Set unique: " + words);
+		this.idcounter++;
+		for (int i = 0; i < words.size(); i++) {
+			Word word = words.get(i);
+			Word w = Word.createNewWord(word.getToken(), idcounter);
+			w.setWordType(word.getType());
+			words.set(i, w);
+		}		
 	}
 	
 

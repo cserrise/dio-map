@@ -8,6 +8,7 @@ public class Label {
 	
 	private ArrayList<Word> words; 
 	private HashSet<Entity> entities;
+	private String rawString = null;
 	
 	public Label(Word ... words) {
 		this.words = new ArrayList<Word>();
@@ -25,6 +26,10 @@ public class Label {
 			word.addLabel(this);
 		}	
 		this.entities = new HashSet<Entity>();
+	}
+	
+	public void setRawString(String rawString) {
+		this.rawString = rawString;
 	}
 	
 	
@@ -59,12 +64,18 @@ public class Label {
 	* @return The raw string.
 	*/
 	public String toRawString() {
-		String rep = "";
-		for (int i = 0; i < this.getNumberOfWords(); i++) {
-			rep += this.getWord(i);  
+		if (rawString == null) {
+			String rep = "";
+			for (int i = 0; i < this.getNumberOfWords(); i++) {
+				rep += this.getWord(i) + this.getWord(i).getSuffix();  
+				
+			}
+			return rep;
+		}
+		else {
+			return this.rawString;
 			
 		}
-		return rep;
 	}
 	
 	public String toSpacedString() {

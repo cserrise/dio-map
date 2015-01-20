@@ -4,10 +4,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+import de.unima.ki.dio.Settings;
+
 public class Word {
 
 	private WordType type;	
 	private String token;
+	private String suffix = "";
 	
 	private static HashMap<String, Word> store = new HashMap<String, Word>();
 	
@@ -67,6 +70,26 @@ public class Word {
 		return this.token;
 	}
 	
+	
+	/**
+	 * Sets the suffix from empty string to some special string.
+	 * The suffix is used in the special case where exactly the same normalized label is used for several entities. 
+	 * 
+	 * @param id the id that is appended to the suffix.
+	 */
+	public void setSuffix(int id) {
+		this.suffix = Settings.SUFFIX + id;
+	}
+	
+	/**
+	* The suffix is used in the special case where exactly the same normalized label is used for several entities. 
+	* 
+	* @return The suffix or an empty string.
+	*/
+	public String getSuffix() {
+		return this.suffix;
+	}
+	
 	/**
 	 * Two words are equal if the are wrappers for the same string. 
 	 */
@@ -76,7 +99,7 @@ public class Word {
 		}
 		else {
 			Word wordAsWord = (Word)word;
-			if (this.token.equals(wordAsWord.getToken())) {
+			if ((this.token + this.suffix).equals(wordAsWord.getToken() + wordAsWord.getSuffix())) {
 				return true;
 			}
 			else {
@@ -90,20 +113,34 @@ public class Word {
 		Word.store.clear();
 	}
 	
-	public static Word createWord(String token) {
+	public static Word createWord(String token, String suffix) {
 		Word w;
-		if (Word.store.containsKey(token)) {
-			w = Word.store.get(token);
+		if (Word.store.containsKey(token + suffix)) {
+			w = Word.store.get(token + suffix);
 		}
 		else {
 			w = new Word(token);
-			Word.store.put(token, w);
+			Word.store.put(token + suffix, w);
 		}
 		return w;
 	}
 	
+	/**
+	 * Creates a new word without checking in the store if it already exists.
+	 *  
+	 * @param token
+	 * @param id
+	 * @return
+	 */
+	public static Word createNewWord(String token, int id) {
+		Word w = createWord(token, Settings.SUFFIX + id);
+		w.setSuffix(id);
+		return w;
+	}
+	
+	
 	public static Word createWord(String token, WordType type) {
-		Word w = createWord(token);
+		Word w = createWord(token, "");
 		w.setWordType(type);
 		return w;
 	}
@@ -133,7 +170,7 @@ public class Word {
 	 * @return The string for which this word is a wrapper.
 	 */
 	public String getMLId(String ontId) {
-		return "W" + ontId + "#" + this.token;
+		return "W" + ontId + "#" + this.token + this.suffix;
 	}
 	
 	
