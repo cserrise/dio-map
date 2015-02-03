@@ -10,9 +10,16 @@ public abstract class Matcher {
 	public abstract Alignment match(Ontology ont1, Ontology ont2) throws DioException;
 	
 	protected double normalize(double sim) {
-		double span = Settings.SIM_UPPER_BOUND - Settings.SIM_LOWER_BOUND;
+		double upperBound = Settings.SIM_UPPER_BOUND;
+		double lowerBound = Settings.SIM_LOWER_BOUND;
+		if (Settings.SIM_BOUND_HYPO) {
+			upperBound = Settings.SIM_UPPER_BOUND_HYPO;
+			lowerBound = Settings.SIM_LOWER_BOUND_HYPO;			
+		}
+		
+		double span = upperBound - lowerBound;
 		double nsim = sim * span;
-		nsim += Settings.SIM_LOWER_BOUND;
+		nsim += lowerBound;
 		return nsim;
 	}
 	

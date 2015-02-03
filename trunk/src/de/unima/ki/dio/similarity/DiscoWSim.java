@@ -6,6 +6,7 @@ import de.linguatools.disco.Compositionality;
 import de.linguatools.disco.DISCO;
 import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.entities.Word;
+import de.unima.ki.dio.entities.WordType;
 
 public class DiscoWSim implements WordSimilarity {
 
@@ -25,7 +26,13 @@ public class DiscoWSim implements WordSimilarity {
 	}
 	
 	public double getSimilarity(Word w1, Word w2) {
-		return getSimilarity(w1.getToken(), w2.getToken());
+		if ((w1.getType() == WordType.NOUN_PLURAL || w1.getType() == WordType.NOUN_SINGULAR) && (w2.getType() == WordType.NOUN_PLURAL || w2.getType() == WordType.NOUN_SINGULAR)) {
+			return getSimilarity(w1.getToken(), w2.getToken());
+		}
+		else {
+			return 0;
+		}
+		
 		
 	}
 	
@@ -35,7 +42,15 @@ public class DiscoWSim implements WordSimilarity {
 				return 1.0d;
 			}
 			else {
+
 				double sim = (double)this.disco.secondOrderSimilarity(w1.toLowerCase(), w2.toLowerCase());
+				/*
+				if ((w1.equals("paper") && w2.equals("contribution")) || (w1.equals("contribution") && w2.equals("paper"))) {
+				 
+					System.out.println("VALUE = " + sim);
+					return 0.13;
+				}
+				*/
 				if (sim < Settings.DISCO_THRESHOLD) {
 					return 0.0d;
 				}

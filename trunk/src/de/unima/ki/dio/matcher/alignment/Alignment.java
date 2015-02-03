@@ -165,6 +165,7 @@ public class Alignment implements Iterable<Correspondence>{
 		return false;
 	}
 
+
 	public void applyThreshold(double t) {
 		ArrayList<Correspondence> thresholded = new ArrayList<Correspondence>();
 		for (Correspondence c : this.correspondences) {

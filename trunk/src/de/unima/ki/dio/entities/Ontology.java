@@ -77,7 +77,7 @@ public class Ontology {
 			if (classy.getIRI().toString().startsWith(Settings.OWL_NS)) {
 				continue;
 			}
-			ArrayList<Word> words = getLabelAsWordList(classy.getIRI());
+			ArrayList<Word> words = getLabelAsWordList("C", classy.getIRI());
 			if (labelStore.contains(words.toString())) { makeNonUniqueWordsUnique(words); }
 			else { labelStore.add(words.toString()); }
 			Label label = new Label(words);
@@ -100,7 +100,7 @@ public class Ontology {
 				continue;
 			}
 			
-			ArrayList<Word> words = getLabelAsWordList(objPropertyOWL.getIRI());
+			ArrayList<Word> words = getLabelAsWordList("O", objPropertyOWL.getIRI());
 			if (labelStore.contains(words.toString())) { makeNonUniqueWordsUnique(words); }
 			else { labelStore.add(words.toString()); }
 			
@@ -209,7 +209,7 @@ public class Ontology {
 						Morphology m = new Morphology();
 						for(int i = 1; i < taggedWordList.size() - 1; i++){
 							if(taggedWordList.get(i).word().contains("of")){
-								objProp.setRangeLabel(new Label(Word.createWord(taggedWordList.get(i+1).word(), getWordtypeForTag(taggedWordList.get(i+1).tag())), Word.createWord(taggedWordList.get(i-1).word(), getWordtypeForTag(taggedWordList.get(i-1).tag()))));
+								objProp.setRangeLabel(new Label(Word.createWord("C", taggedWordList.get(i+1).word(), getWordtypeForTag(taggedWordList.get(i+1).tag())), Word.createWord("C", taggedWordList.get(i-1).word(), getWordtypeForTag(taggedWordList.get(i-1).tag()))));
 							}
 						}
 						for(int i = 0; i < taggedWordList.size(); i++){
@@ -228,14 +228,14 @@ public class Ontology {
 						for(int i = index+1; i < taggedWordList.size(); i++){
 							String tag = taggedWordList.get(i).tag();
 							if(tag.contains("NN") || tag.contains("JJ")){
-								wordsForRangeLabel.add(Word.createWord(taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));
+								wordsForRangeLabel.add(Word.createWord("C", taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));
 							}
 						}
 						if (index > 0){
 							for(int i = 0; i < index; i++){
 								String tag = taggedWordList.get(i).tag();
 								if(tag.contains("NN") || tag.contains("JJ")){
-									wordsForDomainLabel.add(Word.createWord(taggedWordList.get(i).word(),getWordtypeForTag(taggedWordList.get(i).tag())));
+									wordsForDomainLabel.add(Word.createWord("C", taggedWordList.get(i).word(),getWordtypeForTag(taggedWordList.get(i).tag())));
 								}
 							}
 						}
@@ -290,7 +290,7 @@ public class Ontology {
 			if(dataPropertyOWL.toString().startsWith(Settings.OWL_NS)){
 				continue;
 			}
-			ArrayList<Word> words = getLabelAsWordList(dataPropertyOWL.getIRI());
+			ArrayList<Word> words = getLabelAsWordList("D", dataPropertyOWL.getIRI());
 			if (labelStore.contains(words.toString())) { makeNonUniqueWordsUnique(words); }
 			else { labelStore.add(words.toString()); }
 			Label dataPropLabel = new Label(words);
@@ -332,12 +332,12 @@ public class Ontology {
 			ArrayList<Word> wordsForRange = new ArrayList<Word>();
 			if(index > -1){
 				for(int i = index+1; i < taggedWordList.size(); i++){
-					wordsForRange.add(Word.createWord(taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));	
+					wordsForRange.add(Word.createWord("C", taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));	
 				}
 			}else{
 				for(int i = 0; i < taggedWordList.size(); i++){
 					if(taggedWordList.get(i).tag().contains("NN") || taggedWordList.get(i).tag().contains("JJ")){
-						wordsForRange.add(Word.createWord(taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));
+						wordsForRange.add(Word.createWord("C", taggedWordList.get(i).word(), getWordtypeForTag(taggedWordList.get(i).tag())));
 					}
 				}
 			}
@@ -463,9 +463,10 @@ public class Ontology {
 	}
 	
 	
-	private ArrayList<Word> getLabelAsWordList(IRI iri){
+	private ArrayList<Word> getLabelAsWordList(String prefix, IRI iri){
 		ArrayList<Word> words = new ArrayList<Word>();
 		String[] tokens = iri.getFragment().split(Settings.REGEX_FOR_SPLIT);
+		tokens = getFlippedOfTokenList(tokens);
 		String sentence = "";
 		for(String token:tokens){
 			sentence = sentence + " " + token;
@@ -474,20 +475,54 @@ public class Ontology {
 			List<TaggedWord> taggedWordList = postagger.tagSentence(list);
 			Morphology m = new Morphology();
 			for(int i = 0; i < taggedWordList.size(); i++){
-				words.add(Word.createWord(taggedWordList.get(i).word(), this.getWordtypeForTag(taggedWordList.get(i).tag())));		
+				words.add(Word.createWord(prefix, taggedWordList.get(i).word(), this.getWordtypeForTag(taggedWordList.get(i).tag())));		
 			}
 		}
 		return words;
 	}
 	
+	/**
+	 * Returns the input array, if it does not contain an "of". Otherwise it creates and returns a copy
+	 * where "of" is removed and the part before is flipped with the part after the "of".
+	 * 
+	 * @param token The token array to be modified
+	 * @return An copy of the input array with "of" removed and flipped sections.
+	 */
+	private String[] getFlippedOfTokenList(String[] token) {
+		boolean foundOf = false;
+		int ofIndex;
+		for (ofIndex = 0; ofIndex < token.length; ofIndex++) {
+			if (token[ofIndex].toLowerCase().equals("of")) {
+				foundOf = true;
+				break;
+			}
+		}
+		// no "of" found return input (or "of" is at the beginning or end) 
+		if (!foundOf || (ofIndex == 0 || ofIndex == token.length-1)) {	return token; }
+		// "of has been found, do flip
+		int flippedIndex = 0;
+		String[] flipped = new String[token.length-1];
+		for (int i = ofIndex+1; i < token.length; i++) {
+			flipped[flippedIndex] = token[i]; 
+			flippedIndex++;		
+		}
+		for (int i = 0; i < ofIndex; i++) {
+			flipped[flippedIndex] = token[i]; 
+			flippedIndex++;					
+		}
+		return flipped;
+	}
+	
 	private WordType getWordtypeForTag(String tag){
 		if(tag.contains("VB")){
 			return WordType.VERB;
-		}else if(tag.contains("NN")){
-			return WordType.NOUN;
-		}else if(tag.contains("JJ")){
+		} else if (tag.equals("NN")  || tag.equals("NNP")) {
+			return WordType.NOUN_SINGULAR;
+		} else if (tag.equals("NNS")  || tag.equals("NNPS")) {
+			return WordType.NOUN_PLURAL;
+		} else if(tag.contains("JJ")){
 			return WordType.ADJECTIVE;
-		}else{
+		} else {
 			return WordType.UNKNOWN;
 		}
 	}
@@ -497,11 +532,23 @@ public class Ontology {
 		this.idcounter++;
 		for (int i = 0; i < words.size(); i++) {
 			Word word = words.get(i);
-			Word w = Word.createNewWord(word.getToken(), idcounter);
+			Word w = Word.createNewWord(word.getPrefix(), word.getToken(), idcounter);
 			w.setWordType(word.getType());
 			words.set(i, w);
 		}		
 	}
+	/*
+	public static void main(String[] args) {
+		String[] token1 = {"Men", "OF", "war"};
+		String[] flipped = getFlippedOfTokenList(token1);
+		for (String f : flipped) {
+			System.out.println(f);	
+		}
+		
+		
+		
+	}
+	*/
 	
 
 }

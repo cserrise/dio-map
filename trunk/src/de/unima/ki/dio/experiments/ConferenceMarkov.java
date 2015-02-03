@@ -7,17 +7,15 @@ import de.unima.ki.dio.exceptions.AlignmentException;
 import de.unima.ki.dio.exceptions.DioException;
 import de.unima.ki.dio.matcher.MarkovMatcher;
 import de.unima.ki.dio.matcher.Matcher;
-import de.unima.ki.dio.matcher.SimpleMatcher;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Characteristic;
-import de.unima.ki.dio.matcher.filter.Greedy11;
 
 public class ConferenceMarkov {
 
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
-	private static String outputPath = "exp/results/strict-2015-5/";
+	private static String outputPath = "exp/results/speed-5/";
 	
 	public static void main(String[] args) throws DioException {
 		
@@ -28,47 +26,26 @@ public class ConferenceMarkov {
 		
 		
 		/*
+		
 		String[] ontIds = {
-				"conference",
-				"iasted"
-		};
-		
-		*/
-		
-		
-		
-		
-		
-		
-	
-		String[] ontIds = {
-			// "cmt",
-			// "conference",
-			"confof",
-			"edas",
-			//"ekaw",
-			//"iasted",
-			//"sigkdd"
-		};
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		/*
-		String[] ontIds = {
-				"cmt",
+				"confof",
 				"ekaw"
 		};
+		
 		*/
 		
 		
+		String[] ontIds = {
+			"cmt",
+			"conference",
+			"confof",
+			"edas",
+			"ekaw",
+			"iasted",
+			"sigkdd"
+		};
+		
+	
 		
 		
 		String refp = Settings.ROCKIT_EVIDENCEFILEPATH;
