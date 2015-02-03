@@ -5,6 +5,6 @@ public enum WordType {
 	UNKNOWN,
 	ADJECTIVE, 
 	VERB,
-	NOUN
-
+	NOUN_SINGULAR,
+	NOUN_PLURAL
 }

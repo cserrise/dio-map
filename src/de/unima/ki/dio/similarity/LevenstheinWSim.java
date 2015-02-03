@@ -20,8 +20,6 @@ public class LevenstheinWSim implements WordSimilarity {
 	 * then the method return 0. This method is intended to be used for detecting typos and spelling variants.
 	 */
 	public double getSimilarity(String w1, String w2) {
-		// TODO implement this function, it should return the similaroity score if it above a threshold defined in the settings
-		// and it
 		Levenshtein lev = new Levenshtein();
 		double val = (double)lev.getSimilarity(w1.toLowerCase(), w2.toLowerCase());
 		double valS1 = (double)lev.getSimilarity(w1.toLowerCase() + "s", w2.toLowerCase());

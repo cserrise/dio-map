@@ -9,7 +9,8 @@ public class Settings {
 	public static final boolean USE_LOCAL_ROCKIT = true;
 	
 	// used to split labels from ontologies 
-	public static final String REGEX_FOR_SPLIT = "(?<=\\p{Ll})(?=\\p{Lu})|(?<=\\p{L})(?=\\p{Lu}\\p{Ll})|(_)";
+	// remove forst or to not support detection of abbreviations
+	public static final String REGEX_FOR_SPLIT = "(?<=\\p{Lu})(?=\\p{Lu})|(?<=\\p{Ll})(?=\\p{Lu})|(?<=\\p{L})(?=\\p{Lu}\\p{Ll})|(_)";
 	
 	
 	public static final String DISCO_DIRECTORY_BNC = "res/en-BNC-20080721/";
@@ -21,7 +22,8 @@ public class Settings {
 	public static String DISCO_DIRECTORY = DISCO_DIRECTORY_WIKI;
 	
 	// the MOST IMPORTANT params are insed the model
-	public static final String ROCKIT_MODELFILEPATH = "mod/model_2015_strict.ml";
+	public static final String ROCKIT_MODELFILEPATH            = "mod/mod_simple_strict.ml";
+	public static final String ROCKIT_MODELFILEPATH_HYPOTHESIS = "mod/mod_simple_strict_reversed.ml";
 	// public static final String ROCKIT_MODELFILEPATH = "mod/model_beta2.ml";
 	
 	// similarity thresholds
@@ -30,8 +32,17 @@ public class Settings {
 	
 	// [-1.3 ... 0.7]
 	// span for similarities above the threshold
+	// first for the pre-computation of the hypothesis
+	public static double SIM_LOWER_BOUND_HYPO = 0.0;
+	public static double SIM_UPPER_BOUND_HYPO = 1.0;
+	
+	// then for the computation of the final alignment
 	public static double SIM_LOWER_BOUND = -1.0;
 	public static double SIM_UPPER_BOUND = 0.0;
+	
+	// 
+	public static boolean SIM_BOUND_HYPO = true;
+
 	
 	
 	public static final String TEMP_DIR = "tmp/";
@@ -47,6 +58,7 @@ public class Settings {
 	public static final String ROCKIT_LOCALOUT =  TEMP_DIR + "out.db";
 
 	public static final double MALUS_FOR_PLURALS_SIMILIARITY = 0.01;
+	public static final double MALUS_FOR_ABBREVIATION_HIT = 0.3;
 
 	public static final int MAX_NUM_OF_WORDS_IN_LABEL = 3;
 
@@ -54,8 +66,10 @@ public class Settings {
 	
 	public static final String SUFFIX = "xyxyx";
 
-	public static final int MAX_NUM_OF_SIMILARITIES = 5;
 	
+	public static final int MAX_NUM_OF_SIMILARITIES_CONCEPT = 15;
+	public static final int MAX_NUM_OF_SIMILARITIES_PROP = 15;
+
 	
 	
 }

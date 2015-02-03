@@ -11,6 +11,7 @@ public class Word {
 	private WordType type;	
 	private String token;
 	private String suffix = "";
+	private String prefix = "";
 	
 	private static HashMap<String, Word> store = new HashMap<String, Word>();
 	
@@ -21,7 +22,8 @@ public class Word {
 	 * 
 	 * @param token The string.
 	 */
-	private Word(String token) {
+	private Word(String prefix, String token) {
+		this.prefix = prefix;
 		this.token = token.toLowerCase();
 		this.type = WordType.UNKNOWN;
 		this.labels = new HashSet<Label>();
@@ -91,6 +93,15 @@ public class Word {
 	}
 	
 	/**
+	* The prefix is used to mark the type of entity for which this word has been used. C = Concept, D = Dateproperty, O = Objectproperty
+	* 
+	* @return The suffix or an empty string.
+	*/
+	public String getPrefix() {
+		return this.prefix;
+	}
+	
+	/**
 	 * Two words are equal if the are wrappers for the same string. 
 	 */
 	public boolean equals(Object word) {
@@ -113,14 +124,14 @@ public class Word {
 		Word.store.clear();
 	}
 	
-	public static Word createWord(String token, String suffix) {
+	public static Word createWord(String prefix, String token, String suffix) {
 		Word w;
-		if (Word.store.containsKey(token + suffix)) {
-			w = Word.store.get(token + suffix);
+		if (Word.store.containsKey(prefix + token + suffix)) {
+			w = Word.store.get(prefix + token + suffix);
 		}
 		else {
-			w = new Word(token);
-			Word.store.put(token + suffix, w);
+			w = new Word(prefix, token);
+			Word.store.put(prefix + token + suffix, w);
 		}
 		return w;
 	}
@@ -132,15 +143,18 @@ public class Word {
 	 * @param id
 	 * @return
 	 */
-	public static Word createNewWord(String token, int id) {
-		Word w = createWord(token, Settings.SUFFIX + id);
+	public static Word createNewWord(String prefix, String token, int id) {
+		Word w = createWord(prefix, token, Settings.SUFFIX + id);
 		w.setSuffix(id);
 		return w;
 	}
 	
 	
-	public static Word createWord(String token, WordType type) {
-		Word w = createWord(token, "");
+	public static Word createWord(String prefix, String token, WordType type) {
+		if (type == WordType.NOUN_PLURAL && token.endsWith("s")) {
+			token = token.substring(0, token.length()-1);
+		}
+		Word w = createWord(prefix, token, "");
 		w.setWordType(type);
 		return w;
 	}
@@ -170,7 +184,7 @@ public class Word {
 	 * @return The string for which this word is a wrapper.
 	 */
 	public String getMLId(String ontId) {
-		return "W" + ontId + "#" + this.token + this.suffix;
+		return "W" + ontId + this.prefix + "#" + this.token + this.suffix;
 	}
 	
 	

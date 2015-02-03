@@ -15,9 +15,18 @@ import de.unima.ki.dio.matcher.alignment.Correspondence;
  */
 public class FolderComparison {
 	
-	// public static String folder1 = "exp/results/markov-x30-minus30/";
-	public static String folder1 = "exp/results/temp-2015-1/";
-	public static String folder2 = "exp/results/strict-2015-5/";
+	public static String folder1_prefix = "";
+	public static String folder1 = "exp/results/speed-4.2/";
+
+	public static String folder2_prefix = "";
+	public static String folder2 = "exp/conference/references/";
+	
+	// public static String folder2_prefix = "";
+	// public static String folder2 = "exp/results/speed-4.2/";
+	
+	//public static String folder2_prefix = "AML-";
+	//public static String folder2 = "exp/conference/results/";
+	
 	public static String refFolder = "exp/conference/references/";
 	
 	public static Alignment folder1Alignment = new Alignment();
@@ -28,8 +37,8 @@ public class FolderComparison {
 	public static void main(String[] args) throws DioException {
 	
 		System.out.println("COMPARISON:");
-		System.out.println("(1) " +  folder1);
-		System.out.println("(2) " +  folder2);
+		System.out.println("(1) " +  folder1 + folder1_prefix);
+		System.out.println("(2) " +  folder2 + folder2_prefix);
 		System.out.println();
 		
 		String[] ontIds = {
@@ -68,8 +77,8 @@ public class FolderComparison {
 		String mappingFile = ont1Id + "-" + ont2Id + ".rdf";
 
 		
-		Alignment ali1 = new Alignment(folder1 + mappingFile);
-		Alignment ali2 = new Alignment(folder2 + mappingFile);
+		Alignment ali1 = new Alignment(folder1 + folder1_prefix + mappingFile);
+		Alignment ali2 = new Alignment(folder2 + folder2_prefix + mappingFile);
 		Alignment ref = new Alignment(refFolder + mappingFile);
 		
 		folder1Alignment.add(ali1);
