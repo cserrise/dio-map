@@ -7,6 +7,8 @@ public class ObjectProperty extends Entity {
 	private HashSet<Concept> domainConcept = new HashSet<Concept>();
 	private HashSet<Concept> rangeConcept = new HashSet<Concept>();
 	
+	private ObjectProperty inverse = null;
+	
 	/**
 	* If false, there is only one element in the domainConcept set.
 	*/
@@ -36,6 +38,14 @@ public class ObjectProperty extends Entity {
 	 */
 	public boolean isDomainAnonymous() {
 		return domainAnonymous;
+	}
+	
+	public void setInverse(ObjectProperty p) {
+		this.inverse = p;
+	}
+	
+	public ObjectProperty getInverse() {
+		return this.inverse;
 	}
 
 	/**
@@ -176,6 +186,7 @@ public class ObjectProperty extends Entity {
 	public void setConceptOfRangeLabel(Concept conceptToRangeLabel) {
 		this.conceptOfRangeLabel = conceptToRangeLabel;
 	}
+
 	
 
 }

@@ -101,6 +101,10 @@ public class Correspondence implements Comparable<Correspondence> {
 		
 	}
 	
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
+	
 	
 	
 	

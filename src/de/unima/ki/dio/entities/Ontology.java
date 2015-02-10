@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
@@ -13,14 +14,12 @@ import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLClassExpression;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLDataRange;
-import org.semanticweb.owlapi.model.OWLDatatype;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
+import org.semanticweb.owlapi.model.OWLObjectPropertyExpression;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.reasoner.OWLReasoner;
-import org.semanticweb.owlapi.reasoner.OWLReasonerFactory;
-import org.semanticweb.owlapi.reasoner.structural.StructuralReasonerFactory;
 
 import com.clarkparsia.pellet.owlapiv3.PelletReasonerFactory;
 
@@ -44,9 +43,21 @@ public class Ontology {
 	HashMap<String, ObjectProperty> uri2ObjectProperty = new HashMap<String, ObjectProperty>();  
 	HashMap<String, DataProperty> uri2DataProperty = new HashMap<String, DataProperty>();  
 	
+	HashMap<String, HashSet<String>> differentFrom = null;
+	
+	private Concept MY_TOP;
 	
 	private MaxentTagger postagger = new MaxentTagger("nlp/english-caseless-left3words-distsim.tagger");
 	private OWLOntology ontologyOWL = null;
+	
+	
+	public void multiplyEntities() {
+		
+		
+		
+	}
+	
+	
 	/**
 	* Constructs an internal representation of the ontology in terms of storing all entities of the ontology
 	* with their corresponding labels, which again consist of a list of words.
@@ -70,6 +81,12 @@ public class Ontology {
 		
 		//this.reasoner = reasonerFactory.createReasoner(ontology);
 		OWLReasoner reasoner = reasonerFactory.createReasoner(ontologyOWL);
+		
+		
+		Concept MY_TOP = new Concept(filepath + "#TOP", new Label(new ArrayList<Word>()));
+		MY_TOP.setRootnode(true);
+		this.addConcept(MY_TOP);
+		this.uri2Concept.put(filepath + "#TOP", MY_TOP);
 		
 		
 		//add classes
@@ -109,21 +126,25 @@ public class Ontology {
 			Label objPropLabel = new Label(words);
 			ObjectProperty objProp = new ObjectProperty(objPropertyOWL.getIRI().toString(), objPropLabel);
 			
+			this.uri2ObjectProperty.put(objPropertyOWL.getIRI().toString(), objProp);
+			
 			//DOMAIN
 			
 			HashSet<Concept> domainConcepts = new HashSet<Concept>();
 			
-			for(OWLClassExpression classEx:objPropertyOWL.getDomains(ontologyOWL)){
+			for(OWLClassExpression classEx : objPropertyOWL.getDomains(ontologyOWL)){
 				if(classEx.isAnonymous()){
 					objProp.setDomainAnonymous(true);
-					for(OWLClass domClass:classEx.getClassesInSignature()){
+					for(OWLClass domClass:classEx.getClassesInSignature()) {
 						domainConcepts.add(getConceptByUri(domClass.getIRI().toString()));
 					}
-				}else{
+				}
+				else{
 					OWLClass domain = classEx.asOWLClass();
 					domainConcepts.add(getConceptByUri(domain.getIRI().toString()));
 				}
 			}
+			if (domainConcepts.size() == 0) { domainConcepts.add(MY_TOP); }
 			objProp.setDomainConcept(domainConcepts);
 			
 			//RANGE
@@ -141,7 +162,9 @@ public class Ontology {
 					rangeConcepts.add(getConceptByUri(range.getIRI().toString()));
 				}
 			}
+			if (rangeConcepts.size() == 0) { rangeConcepts.add(MY_TOP); }
 			objProp.setRangeConcept(rangeConcepts);
+			
 			
 			//Extra NLP stuff object property
 			
@@ -183,9 +206,11 @@ public class Ontology {
 						countRangeCriteria++;
 					}
 					//criteria 2 -> how many tokens are percentagewise in the objProp label (needs to be clearly)
-					if(countDomain/domainLabel.getNumberOfWords() > countRange/rangeLabel.getNumberOfWords()){
+					int d = domainLabel.getNumberOfWords() > 0 ? domainLabel.getNumberOfWords() : 1;
+					int r = rangeLabel.getNumberOfWords() > 0 ? rangeLabel.getNumberOfWords() : 1;
+					if(countDomain/d > countRange/r) {
 						countDomainCriteria++;
-					}else if(countRange/rangeLabel.getNumberOfWords() > countDomain/domainLabel.getNumberOfWords()){
+					}else if(countRange/r > countDomain/d){
 						countRangeCriteria++;
 					}
 					//Decision -> favors rangecritera when equal. 
@@ -296,6 +321,8 @@ public class Ontology {
 			Label dataPropLabel = new Label(words);
 			DataProperty dataProp = new DataProperty(dataPropertyOWL.getIRI().toString(), dataPropLabel);
 			
+			
+			this.uri2DataProperty.put(dataPropertyOWL.getIRI().toString(), dataProp);
 			//domain
 			
 			HashSet<Concept> domainConcepts = new HashSet<Concept>();
@@ -371,7 +398,37 @@ public class Ontology {
 			
 			this.addDataProperty(dataProp);
 		}
+		addInverseProperties();
+		
 			
+	}
+	
+	private void addInverseProperties() {
+		for(OWLObjectProperty objPropertyOWL : ontologyOWL.getObjectPropertiesInSignature()){
+			if(objPropertyOWL.toString().startsWith(Settings.OWL_NS)) {continue; }
+			Set<OWLObjectPropertyExpression> inverses = objPropertyOWL.getInverses(this.ontologyOWL);
+			for (OWLObjectPropertyExpression inverse : inverses) {
+				if (inverse instanceof OWLObjectProperty) {
+					ObjectProperty e1 = this.uri2ObjectProperty.get(objPropertyOWL.getIRI().toURI().toString());
+					ObjectProperty e2 = this.uri2ObjectProperty.get(((OWLObjectProperty)inverse).getIRI().toURI().toString());
+					e1.setInverse(e2);		
+				}	
+			}
+			
+			/*
+			ArrayList<Word> words = getLabelAsWordList("O", objPropertyOWL.getIRI());
+			if (labelStore.contains(words.toString())) { makeNonUniqueWordsUnique(words); }
+			else { labelStore.add(words.toString()); }
+			
+			
+			
+			Label objPropLabel = new Label(words);
+			ObjectProperty objProp = new ObjectProperty(objPropertyOWL.getIRI().toString(), objPropLabel);
+			*/
+		}
+		
+		
+		
 	}
 	
 
@@ -386,38 +443,53 @@ public class Ontology {
 	}
 
 	private void addSemantics(OWLReasoner reasoner, OWLClass classy, Concept concept) {
+
 		//add disjointconcepts and subconcepts to concept
 		for(OWLClass disjointClass : reasoner.getDisjointClasses(classy).getFlattened()){
 			if(disjointClass.getIRI().toString().equals(classy.getIRI().toString())){
 				continue;
 			}
 			Concept disConcept = this.getConceptByUri(disjointClass.getIRI().toString());
-			if (disConcept != null) {
+			if (disConcept != null && disConcept.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
 				concept.addDisjointConcept(disConcept);
 			}
 		}
-	
+		// all subclasses
 		for(OWLClass subClass : reasoner.getSubClasses(classy, false).getFlattened()){
 			if (subClass.getIRI().toString().startsWith(Settings.OWL_NS)) {
 				continue;
 			}
 			Concept subConcept = this.getConceptByUri(subClass.getIRI().toString());
-			if (subConcept != null) {
+			if (subConcept != null && subConcept.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
 				concept.addSubConcept(subConcept);
 			}
 		}
+		// only the direct ones
+		for(OWLClass subClass : reasoner.getSubClasses(classy, true).getFlattened()){
+			if (subClass.getIRI().toString().startsWith(Settings.OWL_NS)) {
+				continue;
+			}
+			Concept subConcept = this.getConceptByUri(subClass.getIRI().toString());
+			if (subConcept != null && subConcept.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+				concept.addDSubConcept(subConcept);
+			}
+		}
+		
+		// set rootnodes
+		boolean rootnode = true;
+		for(OWLClass superClass : reasoner.getSuperClasses(classy, false).getFlattened()){
+			if (superClass.getIRI().toString().startsWith(Settings.OWL_NS)) {
+				continue;
+			}
+			rootnode = false;
+			break;
+		}
+		concept.setRootnode(rootnode);
+		
+		
 	}
 	
-	/**
-	 * This constructor is used only for test purpose as long as the standard constructor is not implemented. 
-	 * 
-	 */
-	public Ontology() {
-		// first reset the store to avoid taking over concepts from a previously generated ontology
-		Word.resetStore();
-		
-		
-	}
+
 	
 	/**
 	* Iterates over all entities and returns the assiciated words of theoir labels.
@@ -435,6 +507,87 @@ public class Ontology {
 			}	
 		}
 		return words;
+	}
+	
+	private void initiDifferentFrom() { 
+		this.differentFrom = new HashMap<String, HashSet<String>>();
+		for (Concept c1 : this.uri2Concept.values()) {
+			HashSet<String> diff = new HashSet<String>();
+			String t1 = getSingleToken(c1);
+			if (t1 == null) continue;
+			for (Concept c2 : this.uri2Concept.values()) {
+				String t2 = getSingleToken(c2);
+				String h2 = getHeadnounOf2Token(c2);
+				String m2 = getModifierOf2Token(c2);
+				if (c1.isSubConcept(c2) || c2.isSubConcept(c1)) continue;
+				if (t2 != null && !t1.equals(t2)) {
+					diff.add(t2);
+				}
+				if (h2 != null && !t1.equals(h2) && m2.equals(t1)) {
+					diff.add(t2);
+				}
+				
+			}
+			if (t1 != null) {
+				this.differentFrom.put(t1,diff);
+			}
+		}
+	
+	}
+	
+	private String getSingleToken(Concept c) {
+		for (Label l : c.getLabels()) {
+			if (l.getNumberOfWords() == 1) {
+				return l.getWord(0).getToken();
+			}
+		}
+		return null;
+	}
+	
+	private String getHeadnounOf2Token(Concept c) {
+		for (Label l : c.getLabels()) {
+			if (l.getNumberOfWords() == 2) {
+				return l.getWord(1).getToken();
+			}
+		}
+		return null;
+	}
+	
+	private String getModifierOf2Token(Concept c) {
+		for (Label l : c.getLabels()) {
+			if (l.getNumberOfWords() == 2) {
+				return l.getWord(0).getToken();
+			}
+		}
+		return null;
+	}
+	
+	
+	
+	/**
+	* Returns true, if two strings have (with a very high probabvility) a different meaning. This method is implemented
+	* on the assumption that the words used to describe two one-word sibling concepts (sibling in this ontology) have a
+	* different meaning
+	* 
+	* @param s1 One word.
+	* @param s2 Another word
+	* 
+	* @return True, if the two words have a different meaning.
+	*/
+	public boolean haveDifferentMeaning(String s1, String s2) {
+		
+		if (this.differentFrom == null) initiDifferentFrom();
+		if (this.differentFrom.containsKey(s1)) {
+			if (this.differentFrom.get(s1).contains(s2)) {
+				return true;
+			}
+		}
+		if (this.differentFrom.containsKey(s2)) {
+			if (this.differentFrom.get(s2).contains(s1)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 

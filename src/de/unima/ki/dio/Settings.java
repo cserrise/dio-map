@@ -28,6 +28,7 @@ public class Settings {
 	
 	// similarity thresholds
 	public static double DISCO_THRESHOLD = -0.1;
+	public static double DISCO_THRESHOLD_PROPERTIES = -0.1;
 	public static final double LEVENSHTEIN_THRESHOLD = 0.85;
 	
 	// [-1.3 ... 0.7]
