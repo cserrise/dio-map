@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.antlr.runtime.RecognitionException;
 
@@ -21,11 +23,12 @@ import de.unima.ki.dio.rockit.RockitWrapper;
 
 public class LocalRockitWrapper implements RockitWrapper{
 
-	
+	/*
 	public static void main(String[] args) {
 		LocalRockitWrapper r = new LocalRockitWrapper();
 		r.runRockit("temp/test/prog.mln", "temp/test/evidence.db", "temp/test/out.db");
 	}
+	*/
 
 	public Alignment runRockit(String modelPath, String dataPath, String outPath) {
 		Alignment alignment = new Alignment();
@@ -69,6 +72,7 @@ public class LocalRockitWrapper implements RockitWrapper{
 	           //  System.out.println("LINE:" + line);
 	            rr.addLine(line);
 	        }
+	        br.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -86,13 +90,31 @@ public class LocalRockitWrapper implements RockitWrapper{
 		equalities.addAll(dpe);
 		equalities.addAll(ope);
 		
-		
-		for (String[] values : equalities) {
-			Correspondence c = new Correspondence(values[0], values[1]);
+		Set<Correspondence> correspondences = getCorrespondences(equalities);
+		for (Correspondence c : correspondences) {
 			alignment.add(c);
 		}
 		return alignment;
 	}
+	
+	private HashSet<Correspondence> getCorrespondences(ArrayList<String[]> eqs) {
+		HashSet<Correspondence> correspondences = new HashSet<Correspondence>();
+		for (String[] entities : eqs) {
+			String e1 = removeSuffix(entities[0]);
+			String e2 = removeSuffix(entities[1]);
+			Correspondence c = new Correspondence(e1, e2);
+			correspondences.add(c);
+		}
+		return correspondences;
+	}
+
+	private String removeSuffix(String s) {
+		int lastIndex = s.lastIndexOf("?");
+		return s.substring(0, lastIndex);
+	}
+	
+	
+	
 	
 
 

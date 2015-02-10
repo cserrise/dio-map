@@ -26,6 +26,16 @@ public abstract class Entity {
 		return this.uri;
 	}
 	
+	public void addLabel(Label label) {
+		this.labels.add(label);
+		
+		
+	}
+	
+	public Label getPreferedLabel() {
+		return this.preferedLabel;
+	}
+	
 	public HashSet<Label> getLabels() {
 		return this.labels;
 		
@@ -43,8 +53,17 @@ public abstract class Entity {
 	public void resetLabel(Label label) {
 		this.labels.clear();
 		this.labels.add(label);
+		this.preferedLabel = label;
 		label.addEntity(this);
 		
+	}
+	
+	/**
+	 * Resets all labels, while keeping the previously stored preferred label.
+	 */
+	public void resetLabels() {
+		this.labels.clear();
+
 	}
 
 }

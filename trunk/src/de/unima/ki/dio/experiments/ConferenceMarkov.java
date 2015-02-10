@@ -15,7 +15,7 @@ public class ConferenceMarkov {
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
-	private static String outputPath = "exp/results/speed-5/";
+	private static String outputPath = "exp/results/x-1/";
 	
 	public static void main(String[] args) throws DioException {
 		
@@ -25,15 +25,15 @@ public class ConferenceMarkov {
 		// 2b: the problem 
 		
 		
+		
 		/*
-		
 		String[] ontIds = {
-				"confof",
-				"ekaw"
+				"cmt",
+				"conference"
 		};
-		
 		*/
 		
+
 		
 		String[] ontIds = {
 			"cmt",
@@ -45,7 +45,17 @@ public class ConferenceMarkov {
 			"sigkdd"
 		};
 		
-	
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		
 		String refp = Settings.ROCKIT_EVIDENCEFILEPATH;

@@ -40,6 +40,8 @@
 *dpropWordSim(DPropWord1, DPropWord2, float_)
 *opropWordSim(OPropWord1, OPropWord2, float_)
 
+
+
 // semantics
 
 // sub params: more general, more specific, e.g. sub_o1(Person,Author)
@@ -61,6 +63,8 @@
 
 *dpropSub_o1(DProp1, DProp1)
 *dpropSub_o2(DProp2, DProp2)
+
+
 
 // ********************************
 // ***** HIDDEN PREDICATES  *******
@@ -100,6 +104,7 @@ dpropWordIgnore_o2(w).
 opropWordIgnore_o1(w).
 opropWordIgnore_o2(w).
 
+
 // add the similarity of two words to the objective, if they are set equiv in the solution
 sim: !conceptWordSim(w1, w2, sim) v conceptWordEQ(w1,w2)
 sim: !dpropWordSim(w1, w2, sim) v dpropWordEQ(w1,w2)
@@ -117,6 +122,9 @@ sim: !opropWordSim(w1, w2, sim) v opropWordEQ(w1,w2)
 !dprop1Word_o1(e_o1, w_o1) v !dprop1Word_o2(e_o2, w_o2) v !dpropWordEQ(w_o1, w_o2) v !dpropDom_o1(e_o1, c_o1) v !dpropDom_o2(e_o2, c_o2) v !conceptEQ(c_o1, c_o2) v dpropEQ(e_o1, e_o2).
 
 !oprop1Word_o1(e_o1, w_o1) v !oprop1Word_o2(e_o2, w_o2) v !opropWordEQ(w_o1, w_o2) v !opropDom_o1(e_o1, cd_o1) v !opropDom_o2(e_o2, cd_o2) v !conceptEQ(cd_o1, cd_o2) v !opropRan_o1(e_o1, cr_o1) v !opropRan_o2(e_o2, cr_o2) v !conceptEQ(cr_o1, cr_o2) v opropEQ(e_o1, e_o2).
+
+
+
 
 // *** the rules for matching 2-word entities on 2-word entities ***
 !concept2Word_o1(e_o1, w1_o1, w2_o1) v !concept2Word_o2(e_o2, w1_o2, w2_o2) v !conceptWordEQ(w1_o1, w1_o2) v !conceptWordEQ(w2_o1, w2_o2) v conceptEQ(e_o1, e_o2).
@@ -177,30 +185,5 @@ sim: !opropWordSim(w1, w2, sim) v opropWordEQ(w1,w2)
 
 !oprop3Word_o1(e_o1, w1_o1, w2_o1, w3_o1) v !oprop3Word_o2(e_o2, w1_o2, w2_o2, w3_o2) v !opropWordEQ(w1_o1, w1_o2) v !opropWordEQ(w2_o1, w2_o2) v !opropWordEQ(w3_o1, w3_o2) v !opropDom_o1(e_o1, cd_o1) v !opropDom_o2(e_o2, cd_o2) v !conceptEQ(cd_o1, cd_o2) v !opropRan_o1(e_o1, cr_o1) v !opropRan_o2(e_o2, cr_o2) v !conceptEQ(cr_o1, cr_o2) v opropEQ(e_o1, e_o2).
 
-
-// *******************************
-// ** coherency constraints *****
-// *******************************
-// assumption: the logic dependencies are already materialized in advance for all relevant predicates
-
-// CONCEPT PATTERN COHERENCY
-!conceptEQ(c1_o1, c1_o2) v !conceptEQ(c2_o1, c2_o2) v !sub_o1(c1_o1, c2_o1) v !dis_o2(c1_o2, c2_o2).
-!conceptEQ(c1_o1, c1_o2) v !conceptEQ(c2_o1, c2_o2) v !dis_o1(c1_o1, c2_o1) v !sub_o2(c1_o2, c2_o2).
- 
-// CONCEPT PATTERN COHERENCY
-// !conceptEQ(c1_o1, c1_o2) v !conceptEQ(c2_o1, c2_o2) v !sub_o1(c1_o1, c2_o1) v !dis_o2(c1_o2, c2_o2).
-// !conceptEQ(c1_o1, c1_o2) v !conceptEQ(c2_o1, c2_o2) v !dis_o1(c1_o1, c2_o1) v !sub_o2(c1_o2, c2_o2).
-
-// STABILITY CONSTRAINTS FOR PROPERTY MAPPINGS
-!opropEQ(p_o1, p_o2) v !opropDom_o1(p_o1, c_o1) v !opropDom_o2(p_o2, c_o2) v conceptEQ(c_o1, c_o2).
-
-
-
-!opropEQ(p_o1, p_o2) v !opropRan_o1(p_o1, c_o1) v !opropRan_o2(p_o2, c_o2) v conceptEQ(c_o1, c_o2).
-
-
-
-
-!dpropEQ(p_o1, p_o2) v !dpropDom_o1(p_o1, c_o1) v !dpropDom_o2(p_o2, c_o2) v conceptEQ(c_o1, c_o2).
 
 

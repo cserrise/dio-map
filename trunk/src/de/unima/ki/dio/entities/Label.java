@@ -102,5 +102,38 @@ public class Label {
 		return tokens;
 	}
 
+	/**
+	* Checks if the tokens of this and the given labels are the same. 
+	* 
+	* @param label The label that is compared with this label.
+	* @return True if equal, false otherwise.
+	*/
+	public boolean hasEqualTokens(Label label) {
+		if (label.words.size() != this.words.size()) {
+			return false;
+		}
+		for (int i = 0; i < this.words.size(); i++) {
+			if (!this.words.get(i).getToken().equals(label.words.get(i).getToken())) {
+				return  false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean equals(Object that) {
+		if (!(that instanceof Label)) {
+			return false;
+		}
+		else {
+			Label thatLabel = (Label)that;
+			return this.toString().equals(thatLabel.toString());
+		}
+	}
+	
+	public int hashCode() {
+		return this.toString().hashCode();
+	}
+	
+
 
 }

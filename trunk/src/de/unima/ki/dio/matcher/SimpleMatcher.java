@@ -4,6 +4,7 @@ package de.unima.ki.dio.matcher;
 import de.unima.ki.dio.entities.*;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Correspondence;
+import de.unima.ki.dio.matcher.evidence.EvidenceManager;
 import de.unima.ki.dio.similarity.*;
 
 /**
@@ -49,7 +50,7 @@ public class SimpleMatcher extends Matcher {
 					
 				}
 				if (bestSim > -100.0) {
-					bestSim = normalize(bestSim);
+					bestSim = EvidenceManager.normalize(bestSim);
 					if (bestSim > 0.0) {
 						c = new Correspondence(e1.getUri(), e2.getUri(), bestSim);
 						ali.add(c);

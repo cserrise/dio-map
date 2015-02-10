@@ -1,21 +1,11 @@
 package de.unima.ki.dio.matcher;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.PriorityQueue;
-
-
-import org.antlr.runtime.RecognitionException;
-
-import com.googlecode.rockit.app.Main;
-import com.googlecode.rockit.exception.ParseException;
-import com.googlecode.rockit.exception.ReadOrWriteToFileException;
-import com.googlecode.rockit.exception.SolveException;
 
 
 import de.unima.ki.dio.Settings;
@@ -29,18 +19,7 @@ import de.unima.ki.dio.rockit.RockitResult;
 import de.unima.ki.dio.rockit.remote.RemoteRockit;
 import de.unima.ki.dio.similarity.*;
 
-
-
-/**
- * 
- * UNDER CONSTRUCTION
- *
- */
 public class MarkovMatcher extends Matcher {
-	
-
-	private Ontology ont1;
-	private Ontology ont2;
 	
 	private PrintWriter writer;
 	private PrintWriter out;
@@ -48,9 +27,10 @@ public class MarkovMatcher extends Matcher {
 	WordSimilarity discoWSim;
 	WordSimilarity abbreviationWSim;
 	WordSimilarity levenstheinWSim;
+	WordSimilarity dictionaryWSim;
 	
-	private ArrayList<EvidenceManager> groundAtoms = new ArrayList<EvidenceManager>();
-	
+	Ontology ont1;
+	Ontology ont2;
 	
 	// public HashMap<String, String>
 	
@@ -58,21 +38,51 @@ public class MarkovMatcher extends Matcher {
 		this.discoWSim = new DiscoWSim();
 		this.abbreviationWSim = new AbbreviationWSim();
 		this.levenstheinWSim = new LevenstheinWSim();
+		this.dictionaryWSim = new DictionaryMock();
 	}
 	
 	public Alignment match(Ontology ont1, Ontology ont2) throws RockitException {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
-		Alignment hypothesis = computeHypotheses(ont1, ont2);
-		System.out.println("Hypotheses that have been computed:");
-		System.out.println(hypothesis);
-		Alignment alignment = computeAlignment(ont1, ont2, hypothesis);
+		Alignment hypothesis = computeHypotheses();
+		//System.out.println("Hypotheses that have been computed:");
+		//System.out.println(hypothesis);
+		Alignment alignment = computeAlignment(hypothesis);
 		return alignment;
-
-		
 	}
 	
-	public Alignment computeAlignment(Ontology ont1, Ontology ont2, Alignment hypothesis) throws RockitException {
+
+	public Alignment computeHypotheses() throws RockitException {
+		EvidenceManager.clear();
+		System.out.println(">>> Computing hypotheses that are a superset of the final alignment <<<");
+		Settings.SIM_BOUND_HYPO = true;
+		try {
+			writer = new PrintWriter(Settings.ROCKIT_EVIDENCEFILEPATH + "-HYPO", "UTF-8");
+			out = new PrintWriter(Settings.ROCKIT_LOCALOUT+ "-HYPO", "UTF-8");
+		}
+		catch (FileNotFoundException e) {
+			throw new RockitException(RockitException.IO_ERROR, "could not create rockit evidence file", e);
+		}
+		catch (UnsupportedEncodingException e) {
+			throw new RockitException(RockitException.IO_ERROR, "problems with encoding", e);
+		}
+
+		extendLabels(ont1.getEntities());
+		extendLabels(ont2.getEntities());
+		
+		writeEvidenceWordSimilarity("1", "2");
+		writeEvidenceEntities(ont1.getEntities(), "1");
+		writeEvidenceEntities(ont2.getEntities(), "2");	
+		EvidenceManager.write(writer);
+		writer.close();
+		RockitAdapter rockitAdapter = new RockitAdapter(Settings.ROCKIT_MODELFILEPATH_HYPOTHESIS, Settings.ROCKIT_EVIDENCEFILEPATH + "-HYPO", Settings.ROCKIT_LOCALOUT + "-HYPO");
+		Alignment alignment = rockitAdapter.runRockit();
+		
+		// out.close();
+		return alignment;	
+	}
+	
+	public Alignment computeAlignment(Alignment hypothesis) throws RockitException {
 		Settings.SIM_BOUND_HYPO = false;
 		System.out.println(">>> Computing final alignment <<< ");
 		try {
@@ -85,11 +95,7 @@ public class MarkovMatcher extends Matcher {
 		catch (UnsupportedEncodingException e) {
 			throw new RockitException(RockitException.IO_ERROR, "problems with encoding", e);
 		}
-		EvidenceManager.clear();
 		writeEvidenceHypothesis(ont1.getEntities(), ont2.getEntities(), hypothesis);	
-		writeEvidenceWordSimilarity(ont1.getWords(), "1", ont2.getWords(), "2");
-		writeEvidenceEntities(ont1.getEntities(), "1");
-		writeEvidenceEntities(ont2.getEntities(), "2");	
 		if (Settings.ENSURE_COHERENCY) {
 			writeEvidenceSemantics(ont1.getEntities(), "1");
 			writeEvidenceSemantics(ont2.getEntities(), "2");
@@ -104,36 +110,74 @@ public class MarkovMatcher extends Matcher {
 	}
 	
 	
-
-
-	public Alignment computeHypotheses(Ontology ont1, Ontology ont2) throws RockitException {
-		System.out.println(">>> Computing hypotheses that are a superset of the final alignment <<<");
-		Settings.SIM_BOUND_HYPO = true;
-		try {
-			writer = new PrintWriter(Settings.ROCKIT_EVIDENCEFILEPATH + "-HYPO", "UTF-8");
-			out = new PrintWriter(Settings.ROCKIT_LOCALOUT+ "-HYPO", "UTF-8");
-		}
-		catch (FileNotFoundException e) {
-			throw new RockitException(RockitException.IO_ERROR, "could not create rockit evidence file", e);
-		}
-		catch (UnsupportedEncodingException e) {
-			throw new RockitException(RockitException.IO_ERROR, "problems with encoding", e);
-		}
-		EvidenceManager.clear();
-		writeEvidenceWordSimilarity(ont1.getWords(), "1", ont2.getWords(), "2");
-		writeEvidenceEntities(ont1.getEntities(), "1");
-		writeEvidenceEntities(ont2.getEntities(), "2");	
-		EvidenceManager.write(writer);
-		writer.close();
-		RockitAdapter rockitAdapter = new RockitAdapter(Settings.ROCKIT_MODELFILEPATH_HYPOTHESIS, Settings.ROCKIT_EVIDENCEFILEPATH + "-HYPO", Settings.ROCKIT_LOCALOUT + "-HYPO");
-		Alignment alignment = rockitAdapter.runRockit();
+	private void extendLabels(HashSet<Entity> entities) {
 		
-		// out.close();
-		return alignment;	
-
+		// modify and add simplified labels
+		for (Entity e : entities) {
+			if (e instanceof DataProperty) {
+				LabelExtender.addSimplifiedLabel(e);
+			}
+			
+			if (e instanceof ObjectProperty) {
+				LabelExtender.addSimplifiedLabel(e);
+			}
+		}
+		// add labels of symmetric properties
+		HashSet<Entity> touched = new HashSet<Entity>();
+		for (Entity e1 : entities) {
+			touched.add(e1);
+			if  (!(e1 instanceof ObjectProperty)) continue;
+			ObjectProperty e1Property = (ObjectProperty)e1;
+			ObjectProperty e2Property = e1Property.getInverse();
+			if (e2Property != null) {
+				if (!touched.contains(e2Property)) {
+					LabelExtender.addLabelsForInverseProperties(e1Property,e2Property);
+				}
+			}
+		}
+		// add labels for compound words
+		touched.clear();
+		for (Entity e1 : entities) {
+			touched.add(e1);
+			if  (!(e1 instanceof Concept)) continue;
+			Concept e1Concept = (Concept)e1;
+			LabelExtender.expandLabelsOfCompound(e1);
+		}
+		
+		
+		// add headnouns to concepts based on the superconcepts
+		/*
+		touched.clear();
+		
+		for (Entity e1 : entities) {
+			if  (!(e1 instanceof Concept)) continue;
+			Concept superConcept = (Concept)e1;
+			for (Concept subConcept : superConcept.getSubConcepts()) {
+				if (superConcept.isDSubConcept(subConcept)) {
+					Label superLabel = superConcept.getPreferedLabel();
+					Label subLabel = subConcept.getPreferedLabel();
+					if (superLabel.getNumberOfWords() > 1) continue;
+					Word headnoun = superLabel.getWord(superLabel.getNumberOfWords() - 1);
+					ArrayList<Word> words = new ArrayList<Word>();
+					boolean contained = false;
+					for (int i = 0; i < subLabel.getNumberOfWords(); i++) {
+						Word word = subLabel.getWord(i);
+						words.add(subLabel.getWord(i));
+						if (word.equals(headnoun)) {
+							contained = true;
+							break;
+						}
+					}
+					if (contained) continue;
+					words.add(headnoun);
+					Label extendedLabel = new Label(words);	
+					System.out.println("EXTEND " + subLabel + " to " + extendedLabel);
+					subConcept.addLabel(extendedLabel);
+				}
+			}
+		}
+		*/
 	}
-	
-	
 
 	/**
 	* Generates evidence that describes concepts (properties) and their labels  and labels and their words.
@@ -143,27 +187,14 @@ public class MarkovMatcher extends Matcher {
 	*/
 	private void writeEvidenceEntities(HashSet<Entity> entities, String ontId) {		
 		for (Entity e : entities) {
-
-			if (e instanceof DataProperty) {
-				for (Label l : e.getLabels()) {
-					LabelConverter.overwriteBySimplifiedLabel(e, l);
-				}
-			}
 			
-			if (e instanceof ObjectProperty) {
-				for (Label l : e.getLabels()) {
-					LabelConverter.overwriteBySimplifiedLabel(e, l);
-				}
-			}
-			
-
 			if (e instanceof Concept) {
+				int counter = 0;
 				for (Label l : e.getLabels()) {
 					int numOfWords = l.getNumberOfWords();
 					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-						ArrayList<String> paramsE2W = new ArrayList<String>();
-						paramsE2W.add(e.getUri());
-						paramsE2W.addAll(l.getMLWords(ontId));
+						counter++;
+						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
 						EvidenceManager.addGroundAtom("concept" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
 					}
 				}
@@ -171,26 +202,27 @@ public class MarkovMatcher extends Matcher {
 			
 			
 			if (e instanceof DataProperty) {
+				int counter = 0;
 				for (Label l : e.getLabels()) {
 					// System.out.println("LABEL of data property: "  + l);
 					int numOfWords = l.getNumberOfWords();
 					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-						ArrayList<String> paramsE2W = new ArrayList<String>();
-						paramsE2W.add(e.getUri());
-						paramsE2W.addAll(l.getMLWords(ontId));
+						counter++;
+						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
 						EvidenceManager.addGroundAtom("dprop" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
 					}
 				}
 			}
 			
 			if (e instanceof ObjectProperty) {
+				int counter = 0;
+				// System.out.println("Object Property: "  + e.getUri());
 				for (Label l : e.getLabels()) {
 					// System.out.println("LABEL of object property: "  + l);
 					int numOfWords = l.getNumberOfWords();
 					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-						ArrayList<String> paramsE2W = new ArrayList<String>();
-						paramsE2W.add(e.getUri());
-						paramsE2W.addAll(l.getMLWords(ontId));
+						counter++;
+						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
 						EvidenceManager.addGroundAtom("oprop" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
 					}
 				}
@@ -198,87 +230,141 @@ public class MarkovMatcher extends Matcher {
 		
 		}
 	}
+
+	private  ArrayList<String> ccc(String ontId, Entity e, int counter, Label l) {
+		ArrayList<String> paramsE2W = new ArrayList<String>();
+		paramsE2W.add(f(e,counter));
+		paramsE2W.addAll(l.getMLWords(ontId));
+		return paramsE2W;
+	}
+	
+	/**
+	* Creates the concatenation of the URI of e followed by "?" followed by the number i. 
+	* 
+	* @param e The entity.
+	* @param i The suffix number
+	* @return The new identifier for (a certain view on) the entity.
+	 */
+	private String f(Entity e, int i) {
+		return e.getUri() + "?" + i;
+	}
 	
 	private void writeEvidenceSemantics(HashSet<Entity> entities, String ontId) {
 		for (Entity e1 : entities) {
 			if (e1 instanceof Concept) {
-				for (Entity e2 : entities) {
-					if (e2 instanceof Concept) {
-						Concept e1Concept = (Concept)e1;
-						Concept e2Concept = (Concept)e2;
-						if (e1.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL &&  e2.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-							if (e1Concept.isSubClass(e2Concept)) {
-								EvidenceManager.addGroundAtom("sub_o" + ontId, e1.getUri(), e2.getUri());
+				int c = 0;
+				for(Label l1 : e1.getLabels()) {
+					if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+					c++;
+					Concept e1Concept = (Concept)e1;
+					if (e1Concept.isLeafnode()) {
+						EvidenceManager.addGroundAtom("leafnode_o" + ontId, f(e1,c));
+					}
+					if (e1Concept.isRootnode()) {
+						EvidenceManager.addGroundAtom("rootnode_o" + ontId, f(e1,c));
+					}
+				}
+			}
+			
+			
+			for (Entity e2 : entities) {
+				// concept hierarchy and disjointness
+				if (e1 instanceof Concept && e2 instanceof Concept) {
+					int c1 = 0;
+					for(Label l1 : e1.getLabels()) {
+						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+						c1++;
+						int c2 = 0;
+						for(Label l2 : e2.getLabels()) {	
+							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+							c2++;
+							Concept e1Concept = (Concept)e1;
+							Concept e2Concept = (Concept)e2;
+							if (e1Concept.isSubConcept(e2Concept)) {
+								EvidenceManager.addGroundAtom("sub_o" + ontId, f(e1,c1), f(e2,c2));
+							}
+							if (e1Concept.isDSubConcept(e2Concept)) {
+								EvidenceManager.addGroundAtom("dsub_o" + ontId, f(e1,c1), f(e2,c2));
 							}
 							if (e1Concept.isDisjoint(e2Concept)) {
-								EvidenceManager.addGroundAtom("dis_o" + ontId, e1.getUri(), e2.getUri());
+								EvidenceManager.addGroundAtom("dis_o" + ontId, f(e1,c1), f(e2,c2));
 							}
 						}
 					}
 				}
-			}
-		}
-		
-		// System.out.println("domain and range of object properties ");
-		for (Entity e1 : entities) {
-			if (e1 instanceof ObjectProperty) {
-				for (Entity e2 : entities) {
-					if (e2 instanceof Concept) {
-						ObjectProperty e1Property = (ObjectProperty)e1;
-						Concept e2Concept = (Concept)e2;
-						if (e1.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL &&  e2.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+				// domain and range of object properties
+				if (e1 instanceof ObjectProperty && e2 instanceof Concept) {
+					int c1 = 0;
+					for(Label l1 : e1.getLabels()) {
+						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+						c1++;
+						int c2 = 0;
+						for(Label l2 : e2.getLabels()) {	
+							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+							c2++;
+							ObjectProperty e1Property = (ObjectProperty)e1;
+							Concept e2Concept = (Concept)e2;
 							HashSet<Concept> domainConcepts = e1Property.getDomainConcept();
 							for (Concept domainConcept : domainConcepts) {
-								// TODO this is a dirty hack to generate the domain/range for each 
-								// if (e2Concept.isSubClass(domainConcept) || domainConcept.equals(e2Concept)) {
-								//	this.writelnGroundAtom("opropDom_o" + ontId, e1.getUri(), e2.getUri());
-								// }
 								if (domainConcept.equals(e2Concept)) {
-									EvidenceManager.addGroundAtom("opropDom_o" + ontId, e1.getUri(), e2.getUri());
+									EvidenceManager.addGroundAtom("opropDom_o" + ontId, f(e1,c1), f(e2,c2));
 								}
 							}
 							HashSet<Concept> rangeConcepts = e1Property.getRangeConcept();
 							for (Concept rangeConcept : rangeConcepts) {
-								// TODO this is a direty hack to generat the domain/range for each 
-								// if (e2Concept.isSubClass(domainConcept) || domainConcept.equals(e2Concept)) {
-								//	this.writelnGroundAtom("opropDom_o" + ontId, e1.getUri(), e2.getUri());
-								// }
 								if (rangeConcept.equals(e2Concept)) {
-									EvidenceManager.addGroundAtom("opropRan_o" + ontId, e1.getUri(), e2.getUri());
+									EvidenceManager.addGroundAtom("opropRan_o" + ontId, f(e1,c1), f(e2,c2));
 								}
 							}
-							
-							
 						}
 					}
 				}
-			}
-		}
-		// System.out.println("domain and range of data properties ");
-		for (Entity e1 : entities) {
-			if (e1 instanceof DataProperty) {
-				for (Entity e2 : entities) {
-					if (e2 instanceof Concept) {
-						DataProperty e1Property = (DataProperty)e1;
-						Concept e2Concept = (Concept)e2;
-						if (e1.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL &&  e2.getMaxNumOfWords() <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+				// domain of data properties
+				if (e1 instanceof DataProperty && e2 instanceof Concept) {
+					int c1 = 0;
+					for(Label l1 : e1.getLabels()) {
+						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+						c1++;
+						int c2 = 0;
+						for(Label l2 : e2.getLabels()) {	
+							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+							c2++;
+							DataProperty e1Property = (DataProperty)e1;
+							Concept e2Concept = (Concept)e2;
 							HashSet<Concept> domainConcepts = e1Property.getDomainConcept();
 							for (Concept domainConcept : domainConcepts) {
-								// TODO this is a direty hack to generat the domain/range for each 
-								// if (e2Concept.isSubClass(domainConcept) || domainConcept.equals(e2Concept)) {
-								//	this.writelnGroundAtom("opropDom_o" + ontId, e1.getUri(), e2.getUri());
-								// }
 								if (domainConcept.equals(e2Concept)) {
-									EvidenceManager.addGroundAtom("dpropDom_o" + ontId, e1.getUri(), e2.getUri());
+									EvidenceManager.addGroundAtom("dpropDom_o" + ontId, f(e1,c1), f(e2,c2));
 								}
 							}
 						}
 					}
 				}
+				if (e1 instanceof ObjectProperty && e2 instanceof ObjectProperty) {
+					int c1 = 0;
+					for(Label l1 : e1.getLabels()) {
+						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+						c1++;
+						int c2 = 0;
+						for(Label l2 : e2.getLabels()) {	
+							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+							c2++;
+							ObjectProperty e1Property = (ObjectProperty)e1;
+							ObjectProperty e2Property = (ObjectProperty)e2;
+							if (e1Property.getInverse() != null ) {
+								if (e1Property.getInverse().equals(e2Property)) {
+									EvidenceManager.addGroundAtom("opropInv_o" + ontId, f(e1,c1), f(e2,c2));
+								}
+							}
+
+						}
+					}
+				}
+				
 			}
-		}
-		
+		}		
 	}
+	
 
 	
 	private void writeEvidenceHypothesis(HashSet<Entity> entities1, HashSet<Entity> entities2, Alignment hypothesis) {
@@ -288,7 +374,17 @@ public class MarkovMatcher extends Matcher {
 					if (e2 instanceof Concept) {
 						Correspondence temp = new Correspondence(e1.getUri(), e2.getUri());
 						if (!hypothesis.contained(temp)) {
-							EvidenceManager.addGroundAtom("!conceptEQ", e1.getUri(), e2.getUri());
+							int c1 = 0;
+							for(Label l1 : e1.getLabels()) {
+								if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+								c1++;
+								int c2 = 0;
+								for(Label l2 : e2.getLabels()) {	
+									if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
+									c2++;
+									EvidenceManager.addGroundAtom("!conceptEQ", f(e1,c1), f(e2,c2));
+								}
+							}
 						}
 					}
 				}
@@ -298,8 +394,9 @@ public class MarkovMatcher extends Matcher {
 	}
 
 	
-	private void writeEvidenceWordSimilarity(HashSet<Word> wordsOnt1, String ont1Id, HashSet<Word> wordsOnt2, String ont2Id) {
-		
+	private void writeEvidenceWordSimilarity(String ont1Id, String ont2Id) {
+		HashSet<Word> wordsOnt1 = this.ont1.getWords();
+		HashSet<Word> wordsOnt2 = this.ont2.getWords();
 		boolean show = false;
 		for (Word w1 : wordsOnt1) {
 			String fullPrefix = "";
@@ -320,8 +417,9 @@ public class MarkovMatcher extends Matcher {
 				if (!(w1.getPrefix().equals(w2.getPrefix()))) continue;
 				double lsim = this.levenstheinWSim.getSimilarity(w1, w2);
 				double dsim = this.discoWSim.getSimilarity(w1, w2);
+				double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
 				double asim = this. abbreviationWSim.getSimilarity(w1, w2);
-				double sim = Math.max(Math.max(lsim, dsim), asim);
+				double sim = Math.max(Math.max(lsim, Math.max(dsim,dicsim)), asim);
 				// if (show) System.out.println(sim + ": " + w1 + " | " + w2);
 				if (sim > 0) {
 					q.add(sim);
@@ -334,15 +432,21 @@ public class MarkovMatcher extends Matcher {
 			if (show) System.out.println("Lower bound for " + w1 +  " = " + lowerbound);
 			for (Word w2 : wordsOnt2) {
 				if (!(w1.getPrefix().equals(w2.getPrefix()))) continue;
-				
-				
-				
 				double lsim = this.levenstheinWSim.getSimilarity(w1, w2);
 				double dsim = this.discoWSim.getSimilarity(w1, w2);
+				double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
 				double asim = this. abbreviationWSim.getSimilarity(w1, w2);
-				double sim = Math.max(Math.max(lsim, dsim), asim);
+				double sim = Math.max(Math.max(lsim, Math.max(dsim,dicsim)), asim);
+				if (sim < 0.99 ) {
+					if (this.ont1.haveDifferentMeaning(w1.getToken(), w2.getToken()) || this.ont2.haveDifferentMeaning(w1.getToken(), w2.getToken())) {
+						sim = 0.0;	
+					}
+					
+				}
+
 				if (sim >= lowerbound) {
-					EvidenceManager.addGroundAtomWeighted(fullPrefix + "WordSim", w1.getMLId(ont1Id), w2.getMLId(ont2Id), "" + normalize(sim));	
+				
+					EvidenceManager.addGroundAtomWeighted(fullPrefix + "WordSim", w1.getMLId(ont1Id), w2.getMLId(ont2Id), "" + sim);
 				}
 				else {
 					EvidenceManager.addGroundAtom("!" + fullPrefix + "WordEQ", w1.getMLId(ont1Id), w2.getMLId(ont2Id));	
@@ -407,6 +511,7 @@ public class MarkovMatcher extends Matcher {
 		return alignment;
 	}
 	
+	/*
 	private Alignment runRockitLocal() throws RockitException {
 		Alignment alignment = new Alignment();
 		Main rockitLocal = new Main();
@@ -438,6 +543,7 @@ public class MarkovMatcher extends Matcher {
 		
 		return alignment;
 	}
+	*/
 	
 	
 
