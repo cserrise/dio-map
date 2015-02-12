@@ -139,8 +139,7 @@ public class MarkovMatcher extends Matcher {
 		touched.clear();
 		for (Entity e1 : entities) {
 			touched.add(e1);
-			if  (!(e1 instanceof Concept)) continue;
-			Concept e1Concept = (Concept)e1;
+			// if  (!(e1 instanceof Concept)) continue;
 			LabelExtender.expandLabelsOfCompound(e1);
 		}
 		
