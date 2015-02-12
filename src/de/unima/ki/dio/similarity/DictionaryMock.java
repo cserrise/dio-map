@@ -80,6 +80,15 @@ public class DictionaryMock implements CompoundOracle, WordSimilarity {
 		if (w2.equals("surname") && w1.equals("last name")) {
 			return 0.6;
 		}
+		
+		// in wordnet by 3 step
+		if (w1.equals("address") && w2.equals("talk")) {
+			return 0.55;
+		}
+		if (w2.equals("address") && w1.equals("talk")) {
+			return 0.55;
+		}
+		
 		return 0;
 	}
 

@@ -44,19 +44,22 @@ public class LabelExtender {
 		}
 	}
 	
-	public static void expandLabelsOfCompound(Entity e1) {
-		for (Label label  : e1.getLabels()) {
+	public static void expandLabelsOfCompound(Entity e) {
+		for (Label label  : e.getLabels()) {
 			if (dm.isKnownCompound(label)) {
 				String compoundToken = label.getWord(0).getToken();
 				for (int i = 1; i < label.getNumberOfWords(); i++) {
 					compoundToken += " " + label.getWord(i);
 				}
-				Word w = Word.createWord("C", compoundToken, WordType.UNKNOWN);
+				String prefix = "C";
+				if (e instanceof DataProperty) prefix = "D";
+				if (e instanceof ObjectProperty) prefix = "O";
+				Word w = Word.createWord(prefix, compoundToken, WordType.UNKNOWN);
 				System.out.println("Created and added compound: " + w);
 				
 				Label labelCompound = new Label(w);
-				labelCompound.addEntity(e1);
-				e1.addLabel(labelCompound);
+				labelCompound.addEntity(e);
+				e.addLabel(labelCompound);
 			}
 		}
 	}
