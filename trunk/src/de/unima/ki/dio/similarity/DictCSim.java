@@ -6,11 +6,12 @@ import java.io.FileReader;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
-import uk.ac.shef.wit.simmetrics.similaritymetrics.CosineSimilarity;
+import de.unima.ki.dio.entities.Label;
 import de.unima.ki.dio.entities.Word;
 
-public class DictCSim implements WordSimilarity {
+public class DictCSim implements WordSimilarity, CompoundOracle {
 
 	private int degree = 2;
 	
@@ -41,7 +42,6 @@ public class DictCSim implements WordSimilarity {
 
 	@Override
 	public double getSimilarity(String w1, String w2) {
-		CosineSimilarity cosSim = new CosineSimilarity();
 		HashSet<String> vector1 = new HashSet<String>();
 		HashSet<String> vector2 = new HashSet<String>();
 		
@@ -55,18 +55,16 @@ public class DictCSim implements WordSimilarity {
 			vector2 = translate("de",translate("en", vector2));
 		}
 		
-		String compare1="",compare2="";
+		final int termsInString1 = vector1.size();
+		final int termsInString2 = vector2.size();
 		
-		for(String temp:vector1){
-			compare1 = compare1 + " " + temp;
-		}
-		compare1 = compare1.trim();
-		for(String temp:vector2){
-			compare2 = compare2 + " " + temp;
-		}
-		compare2 = compare2.trim();
+		final Set<String> allTokens = new HashSet<String>();
+		allTokens.addAll(vector1);
+		allTokens.addAll(vector2);
 		
-		return cosSim.getSimilarity(compare1, compare2);
+		final int commonTerms = (termsInString1 + termsInString2) - allTokens.size();
+		
+		return (float) (commonTerms) / (float) (Math.pow((float) termsInString1, 0.5f) * Math.pow((float) termsInString2, 0.5f));
 	}
 
 	public int getDegree() {
@@ -75,6 +73,15 @@ public class DictCSim implements WordSimilarity {
 
 	public void setDegree(int degree) {
 		this.degree = degree;
+	}
+	
+	@Override
+	public boolean isKnownCompound(Label l) {
+		if(l.getNumberOfWords() >= 2 && enToDe.containsKey(l.toSpacedString())){
+			return true;
+		}else{
+			return false;
+		}
 	}
 	
 	private void addToDictionary(HashMap<String,HashSet<String>> dic, String key, String value){
@@ -117,22 +124,19 @@ public class DictCSim implements WordSimilarity {
 	
 	public static void main(String[] args) throws Exception{
 		DictCSim sim = new DictCSim();
+
 		String[] words = new String[]{"chair","participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","topic","contribution"};
 		sim.setDegree(1);
 		DecimalFormat df2 = new DecimalFormat( "0.000" );
 		for(String word:words){
 			for(String word2:words){
 				sim.setDegree(1);
-				System.out.print(word + "\t" + word2 + "\t" + df2.format(sim.getSimilarity(word, word2)));
+				System.out.println(word + "\t" + word2 + "\t" + df2.format(sim.getSimilarity(word, word2)));
 				sim.setDegree(2);
 				System.out.print("\t" + df2.format(sim.getSimilarity(word, word2)));
 				sim.setDegree(3);
 				System.out.println("\t" + df2.format(sim.getSimilarity(word, word2)));
 			}
 		}
-		
-		
-//		System.out.println(sim.getSimilarity("subject area", "topic"));
-
-	}
+	}	
 }
