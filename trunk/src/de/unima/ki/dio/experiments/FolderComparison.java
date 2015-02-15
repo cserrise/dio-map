@@ -18,11 +18,11 @@ public class FolderComparison {
 	public static String folder1_prefix = "";
 	public static String folder1 = "exp/results/x-1/";
 
-	public static String folder2_prefix = "";
-	public static String folder2 = "exp/conference/references/";
-	
 	// public static String folder2_prefix = "";
-	// public static String folder2 = "exp/results/x-0/";
+	// public static String folder2 = "exp/conference/references/";
+	
+	public static String folder2_prefix = "";
+	public static String folder2 = "exp/results/x-2/";
 	
 	// public static String folder2_prefix = "AML-";
 	// public static String folder2 = "exp/conference/results/";

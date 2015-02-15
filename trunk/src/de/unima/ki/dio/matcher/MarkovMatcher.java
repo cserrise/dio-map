@@ -145,7 +145,7 @@ public class MarkovMatcher extends Matcher {
 		
 		
 		// add headnouns to concepts based on the superconcepts
-		/*
+		
 		touched.clear();
 		
 		for (Entity e1 : entities) {
@@ -155,7 +155,7 @@ public class MarkovMatcher extends Matcher {
 				if (superConcept.isDSubConcept(subConcept)) {
 					Label superLabel = superConcept.getPreferedLabel();
 					Label subLabel = subConcept.getPreferedLabel();
-					if (superLabel.getNumberOfWords() > 1) continue;
+					if (superLabel.getNumberOfWords() > 2) continue;
 					Word headnoun = superLabel.getWord(superLabel.getNumberOfWords() - 1);
 					ArrayList<Word> words = new ArrayList<Word>();
 					boolean contained = false;
@@ -175,7 +175,7 @@ public class MarkovMatcher extends Matcher {
 				}
 			}
 		}
-		*/
+		
 	}
 
 	/**
@@ -185,23 +185,28 @@ public class MarkovMatcher extends Matcher {
 	* @param ontId The id of the ontology where the entities origin from
 	*/
 	private void writeEvidenceEntities(HashSet<Entity> entities, String ontId) {		
+		ArrayList<String> entityIds = new ArrayList<String>();
 		for (Entity e : entities) {
 			
 			if (e instanceof Concept) {
 				int counter = 0;
+				entityIds.clear();
 				for (Label l : e.getLabels()) {
 					int numOfWords = l.getNumberOfWords();
 					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
 						counter++;
 						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
 						EvidenceManager.addGroundAtom("concept" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
+						entityIds.add(f(e, counter));
 					}
 				}
+				generateSameAsStatements(ontId, entityIds, "concept");
 			}
 			
 			
 			if (e instanceof DataProperty) {
 				int counter = 0;
+				entityIds.clear();
 				for (Label l : e.getLabels()) {
 					// System.out.println("LABEL of data property: "  + l);
 					int numOfWords = l.getNumberOfWords();
@@ -209,12 +214,15 @@ public class MarkovMatcher extends Matcher {
 						counter++;
 						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
 						EvidenceManager.addGroundAtom("dprop" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
+						entityIds.add(f(e, counter));
 					}
 				}
+				generateSameAsStatements(ontId, entityIds, "dprop");
 			}
 			
 			if (e instanceof ObjectProperty) {
 				int counter = 0;
+				entityIds.clear();
 				// System.out.println("Object Property: "  + e.getUri());
 				for (Label l : e.getLabels()) {
 					// System.out.println("LABEL of object property: "  + l);
@@ -223,10 +231,21 @@ public class MarkovMatcher extends Matcher {
 						counter++;
 						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
 						EvidenceManager.addGroundAtom("oprop" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
+						entityIds.add(f(e, counter));
 					}
 				}
+				generateSameAsStatements(ontId, entityIds, "oprop");
 			}
 		
+		}
+	}
+
+	private void generateSameAsStatements(String ontId, ArrayList<String> entityIds, String type) {
+		for (int i = 0; i < entityIds.size(); i++) {
+			for (int j = 0; j < entityIds.size(); j++) {
+				if (i == j) continue;
+				EvidenceManager.addGroundAtom(type + "Same_o" + ontId , new String[]{entityIds.get(i), entityIds.get(j)});
+			}	
 		}
 	}
 

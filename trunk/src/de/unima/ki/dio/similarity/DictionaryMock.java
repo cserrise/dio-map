@@ -89,6 +89,14 @@ public class DictionaryMock implements CompoundOracle, WordSimilarity {
 			return 0.55;
 		}
 		
+		// in wordnet by 3 step
+		if (w1.equals("reviewed") && w2.equals("evaluated")) {
+			return 0.55;
+		}
+		if (w2.equals("reviewed") && w1.equals("evaluated")) {
+			return 0.55;
+		}
+		
 		return 0;
 	}
 
