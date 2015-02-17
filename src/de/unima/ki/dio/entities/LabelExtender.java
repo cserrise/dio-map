@@ -3,6 +3,8 @@ package de.unima.ki.dio.entities;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import de.unima.ki.dio.similarity.CompoundOracle;
+import de.unima.ki.dio.similarity.DictCSim;
 import de.unima.ki.dio.similarity.DictionaryMock;
 
 
@@ -21,7 +23,7 @@ public class LabelExtender {
 	};
 	
 	
-	private static DictionaryMock dm = new DictionaryMock();
+	private static CompoundOracle co = new DictCSim();
 	
 	public static void addLabelsForInverseProperties(Entity e1, Entity e2) {
 		//System.out.println("INVERSE (before extension):");
@@ -45,8 +47,10 @@ public class LabelExtender {
 	}
 	
 	public static void expandLabelsOfCompound(Entity e) {
+		HashSet<Label> additionalLabels = new HashSet<Label>();
+		// create new labels
 		for (Label label  : e.getLabels()) {
-			if (dm.isKnownCompound(label)) {
+			if (co.isKnownCompound(label)) {
 				String compoundToken = label.getWord(0).getToken();
 				for (int i = 1; i < label.getNumberOfWords(); i++) {
 					compoundToken += " " + label.getWord(i);
@@ -58,9 +62,15 @@ public class LabelExtender {
 				System.out.println("Created and added compound: " + w);
 				
 				Label labelCompound = new Label(w);
-				labelCompound.addEntity(e);
-				e.addLabel(labelCompound);
+				additionalLabels.add(labelCompound);
+				
+
 			}
+		}
+		// now add the new labels
+		for (Label additionalLabel : additionalLabels) {
+			additionalLabel.addEntity(e);
+			e.addLabel(additionalLabel);
 		}
 	}
 	

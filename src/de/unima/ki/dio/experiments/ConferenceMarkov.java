@@ -15,7 +15,7 @@ public class ConferenceMarkov {
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
-	private static String outputPath = "exp/results/x-2/";
+	private static String outputPath = "exp/results/dic-1-p0.2/";
 	
 	public static void main(String[] args) throws DioException {
 		
@@ -28,10 +28,11 @@ public class ConferenceMarkov {
 		
 		/*
 		String[] ontIds = {
-				"confof",
-				"iasted"
+				"cmt",
+				"confOf"
 		};
 		*/
+		
 		
 		
 		
