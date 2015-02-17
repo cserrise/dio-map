@@ -29,6 +29,8 @@ public class MarkovMatcher extends Matcher {
 	WordSimilarity levenstheinWSim;
 	WordSimilarity dictionaryWSim;
 	
+	
+	
 	Ontology ont1;
 	Ontology ont2;
 	
@@ -38,7 +40,9 @@ public class MarkovMatcher extends Matcher {
 		this.discoWSim = new DiscoWSim();
 		this.abbreviationWSim = new AbbreviationWSim();
 		this.levenstheinWSim = new LevenstheinWSim();
-		this.dictionaryWSim = new DictionaryMock();
+		// this.dictionaryWSim = new DictionaryMock();
+		this.dictionaryWSim = new DictCSim();
+		((DictCSim)this.dictionaryWSim).setDegree(1);
 	}
 	
 	public Alignment match(Ontology ont1, Ontology ont2) throws RockitException {
@@ -145,7 +149,7 @@ public class MarkovMatcher extends Matcher {
 		
 		
 		// add headnouns to concepts based on the superconcepts
-		
+		/*
 		touched.clear();
 		
 		for (Entity e1 : entities) {
@@ -175,6 +179,7 @@ public class MarkovMatcher extends Matcher {
 				}
 			}
 		}
+		*/
 		
 	}
 
@@ -423,13 +428,12 @@ public class MarkovMatcher extends Matcher {
 			if (w1.getPrefix().equals("O")) fullPrefix = "oprop";
 			double MAX_NUM_OF_SIMILARITIES = Settings.MAX_NUM_OF_SIMILARITIES_CONCEPT;
 			if (!w1.getPrefix().equals("C")) MAX_NUM_OF_SIMILARITIES = Settings.MAX_NUM_OF_SIMILARITIES_PROP;
-			if (w1.getToken().equals("participant_ksjdfksfsdjhgfjh")) {
+			if (w1.getToken().equals("pprprp")) {
 				System.out.println("First FOUND !!!!");
 				System.out.println("Word type: " + w1.getType());
 				show = true;
 			}
 			else { show = false; }
-			
 			PriorityQueue<Double> q = new PriorityQueue<Double>();
 			for (Word w2 : wordsOnt2) {
 				if (!(w1.getPrefix().equals(w2.getPrefix()))) continue;
@@ -455,6 +459,7 @@ public class MarkovMatcher extends Matcher {
 				double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
 				double asim = this. abbreviationWSim.getSimilarity(w1, w2);
 				double sim = Math.max(Math.max(lsim, Math.max(dsim,dicsim)), asim);
+
 				if (sim < 0.99 ) {
 					if (this.ont1.haveDifferentMeaning(w1.getToken(), w2.getToken()) || this.ont2.haveDifferentMeaning(w1.getToken(), w2.getToken())) {
 						sim = 0.0;	
@@ -463,7 +468,7 @@ public class MarkovMatcher extends Matcher {
 				}
 
 				if (sim >= lowerbound) {
-				
+					
 					EvidenceManager.addGroundAtomWeighted(fullPrefix + "WordSim", w1.getMLId(ont1Id), w2.getMLId(ont2Id), "" + sim);
 				}
 				else {
