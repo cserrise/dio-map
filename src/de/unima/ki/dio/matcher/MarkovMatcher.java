@@ -42,7 +42,7 @@ public class MarkovMatcher extends Matcher {
 		this.levenstheinWSim = new LevenstheinWSim();
 		// this.dictionaryWSim = new DictionaryMock();
 		this.dictionaryWSim = new DictCSim();
-		((DictCSim)this.dictionaryWSim).setDegree(1);
+		((DictCSim)this.dictionaryWSim).setDegree(2);
 	}
 	
 	public Alignment match(Ontology ont1, Ontology ont2) throws RockitException {

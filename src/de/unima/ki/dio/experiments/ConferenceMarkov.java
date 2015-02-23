@@ -15,7 +15,7 @@ public class ConferenceMarkov {
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
-	private static String outputPath = "exp/results/dic-1-p0.2/";
+	private static String outputPath = "exp/results/dic-new-2-p0.4/";
 	
 	public static void main(String[] args) throws DioException {
 		
