@@ -61,6 +61,11 @@ public class DictCSim implements WordSimilarity, CompoundOracle {
 		}
 		if(vector1.size() == 0 || vector2.size() == 0) return 0d;
 		
+		System.out.println("Word 1 = " + w1);
+		System.out.println(vector1);
+		System.out.println("Word 2 = " + w2);
+		System.out.println(vector2);
+		
 		final int termsInString1 = vector1.size();
 		final int termsInString2 = vector2.size();
 		
@@ -69,8 +74,12 @@ public class DictCSim implements WordSimilarity, CompoundOracle {
 		allTokens.addAll(vector2);
 		
 		final int commonTerms = (termsInString1 + termsInString2) - allTokens.size();
+		float sim = (float) (commonTerms) / (float) (Math.pow((float) termsInString1, 0.5f) * Math.pow((float) termsInString2, 0.5f));
+		if (sim > 0 && !w1.equals(w2)) {
+			// System.out.println("DicSim " + w1 + " = " + w2 + " => " + sim);
+		}
 		
-		return (float) (commonTerms) / (float) (Math.pow((float) termsInString1, 0.5f) * Math.pow((float) termsInString2, 0.5f));
+		return Math.pow(sim, 0.4);
 	}
 
 	public int getDegree() {
@@ -130,24 +139,22 @@ public class DictCSim implements WordSimilarity, CompoundOracle {
 	public static void main(String[] args) throws Exception{
 		DictCSim sim = new DictCSim();
 		
-		String[] words = new String[]{"chair","participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","topic","contribution"};
-//		sim.setDegree(2);
+		// String[] words = new String[]{"program commitee", "session chair", "subject area", "topic", "last name", "surname", "first name", "chair","reviewed", "participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","contribution"};
+		String[] words = new String[]{"abstract", "departure", "place", "location"};
+		
+		sim.setDegree(2);
 		DecimalFormat df2 = new DecimalFormat( "0.000" );
-		for(String word:words){
-			for(String word2:words){
+		for (int i = 0 ; i < words.length-1; i++) {
+			for (int j = i+1 ; j < words.length; j++) {
+				String word = words[i];
+				String word2 = words[j];
 				sim.setDegree(1);
 				System.out.print(word + "\t" + word2 + "\t" + df2.format(sim.getSimilarity(word, word2)));
 				sim.setDegree(2);
 				System.out.print("\t" + df2.format(sim.getSimilarity(word, word2)));
-				sim.setDegree(3);
-				System.out.print("\t" + df2.format(sim.getSimilarity(word, word2)));
-				sim.setDegree(4);
-				System.out.print("\t" + df2.format(sim.getSimilarity(word, word2)));
-				sim.setDegree(5);
-				System.out.print("\t" + df2.format(sim.getSimilarity(word, word2)));
-				sim.setDegree(6);
-				System.out.println("\t" + df2.format(sim.getSimilarity(word, word2)));
+
 			}
 		}
+		
 	}	
 }
