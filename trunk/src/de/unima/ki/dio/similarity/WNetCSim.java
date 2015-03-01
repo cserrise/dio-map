@@ -25,8 +25,10 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 	
 	private final String wnDir = "nlp/wn3.1.dict/dict";
 	private final IRAMDictionary dict = new RAMDictionary(new File(wnDir) , ILoadPolicy.NO_LOAD);
+	
 	private int degree = 2;
 	private boolean includePrevious = true;
+	private boolean simOnlyForDegree = true;
 
 	public WNetCSim() {
 		try {
@@ -110,14 +112,21 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 			}
 			list1.add(set1);
 			list2.add(set2);
+			
+			setForW1 = set1;
+			setForW2 = set2;
 		}
-		
-		for(HashSet<ISynsetID>set1:list1){
-			for(HashSet<ISynsetID>set2:list2){
-				
-				bestSim = Math.max(bestSim, compare(set1,set2));
+		if(this.simOnlyForDegree){
+			bestSim = compare(list1.get(list1.size()-1),list2.get(list2.size()-1));
+		}else{
+			for(HashSet<ISynsetID>set1:list1){
+				for(HashSet<ISynsetID>set2:list2){	
+					bestSim = Math.max(bestSim, compare(set1,set2));
+				}
 			}
 		}
+		
+		
 		
 		return bestSim;
 	}
@@ -175,9 +184,18 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 		this.includePrevious = includePrevious;
 	}
 
+	public boolean isSimOnlyForDegree() {
+		return simOnlyForDegree;
+	}
+
+	public void setSimOnlyForDegree(boolean simOnlyForDegree) {
+		this.simOnlyForDegree = simOnlyForDegree;
+	}
+
 	public static void main(String[] args){
 		WNetCSim sim = new WNetCSim();
 		String[] words = new String[]{"program commitee", "session chair", "subject area", "topic", "last name", "surname", "first name", "chair","reviewed", "participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","contribution"};
+//		String[] words = new String[]{"subject area", "topic"};
 		
 		DecimalFormat df2 = new DecimalFormat( "0.000" );
 		for (int i = 0 ; i < words.length-1; i++) {
