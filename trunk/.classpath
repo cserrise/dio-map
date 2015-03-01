@@ -38,5 +38,6 @@
 	<classpathentry kind="lib" path="lib/pelletv230/pellet-rules.jar"/>
 	<classpathentry kind="lib" path="lib/pelletv230/servlet.jar"/>
 	<classpathentry kind="lib" path="lib/pelletv230-libs/jgrapht-jdk1.5.jar"/>
+	<classpathentry kind="lib" path="lib/edu.mit.jwi_2.3.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
