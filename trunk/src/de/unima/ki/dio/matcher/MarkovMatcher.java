@@ -34,7 +34,7 @@ public class MarkovMatcher extends Matcher {
 	WordSimilarity discoWSim;
 	WordSimilarity abbreviationWSim;
 	WordSimilarity levenstheinWSim;
-	WordSimilarity dictionaryWSim;
+	WordSimilarity wordNetSim;
 	
 	
 	
@@ -47,6 +47,10 @@ public class MarkovMatcher extends Matcher {
 		this.discoWSim = new DiscoWSim();
 		this.abbreviationWSim = new AbbreviationWSim();
 		this.levenstheinWSim = new LevenstheinWSim();
+		WNetCSim wordNetSim = new WNetCSim();
+		wordNetSim.setDegree(1);
+		this.wordNetSim = wordNetSim;
+		
 		// this.dictionaryWSim = new DictionaryMock();
 		// this.dictionaryWSim = new DictCSim();
 		// ((DictCSim)this.dictionaryWSim).setDegree(2);
@@ -183,10 +187,8 @@ public class MarkovMatcher extends Matcher {
 		touched.clear();
 		for (Entity e1 : entities) {
 			touched.add(e1);
-			// if  (!(e1 instanceof Concept)) continue;
-			/* TODO remove the comment
+			if  (!(e1 instanceof Concept)) continue;
 			LabelExtender.expandLabelsOfCompound(e1);
-			*/
 		}
 		
 		
@@ -457,9 +459,9 @@ public class MarkovMatcher extends Matcher {
 				if (!(w1.getPrefix().equals(w2.getPrefix()))) continue;
 				double lsim = this.levenstheinWSim.getSimilarity(w1, w2);
 				double dsim = this.discoWSim.getSimilarity(w1, w2);
-				// double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
+				double wsim = this.wordNetSim.getSimilarity(w1, w2);
 				double asim = this. abbreviationWSim.getSimilarity(w1, w2);
-				double sim = Math.max(Math.max(lsim, dsim), asim);
+				double sim = getMax(lsim, dsim, asim, wsim);
 				// if (show) System.out.println(sim + ": " + w1 + " | " + w2);
 				if (sim > 0) {
 					q.add(sim);
@@ -474,9 +476,9 @@ public class MarkovMatcher extends Matcher {
 				if (!(w1.getPrefix().equals(w2.getPrefix()))) continue;
 				double lsim = this.levenstheinWSim.getSimilarity(w1, w2);
 				double dsim = this.discoWSim.getSimilarity(w1, w2);
-				// double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
+				double wsim = this.wordNetSim.getSimilarity(w1, w2);
 				double asim = this. abbreviationWSim.getSimilarity(w1, w2);
-				double sim = Math.max(Math.max(lsim, dsim), asim);
+				double sim = getMax(lsim, dsim, asim, wsim);
 
 				if (sim < 0.99 ) {
 					if (this.ont1.haveDifferentMeaning(w1.getToken(), w2.getToken()) || this.ont2.haveDifferentMeaning(w1.getToken(), w2.getToken())) {
@@ -493,6 +495,20 @@ public class MarkovMatcher extends Matcher {
 					EvidenceManager.addGroundAtom("!" + fullPrefix + "WordEQ", w1.getMLId(ont1Id), w2.getMLId(ont2Id));	
 				}
 			}
+		}
+	}
+	
+	private double getMax(double ... values ) {
+		if (values.length > 1) {
+			double[] vals = new double[values.length-1];
+			vals[0] = Math.max(values[0], values[1]);
+			for (int i = 1; i < vals.length; i++) {
+				vals[i] = values[i+1];	
+			}
+			return getMax(vals);
+		}
+		else {
+			return values[0];
 		}
 	}
 

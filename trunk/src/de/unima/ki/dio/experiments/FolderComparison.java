@@ -16,13 +16,13 @@ import de.unima.ki.dio.matcher.alignment.Correspondence;
 public class FolderComparison {
 	
 	public static String folder1_prefix = "";
-	public static String folder1 = "exp/results/dic-new-2/";
+	public static String folder1 = "exp/results/black-1/";
 
-	// public static String folder2_prefix = "";
-	// public static String folder2 = "exp/conference/references/";
-	
 	public static String folder2_prefix = "";
-	public static String folder2 = "exp/results/dic-new-2-p0.4/";
+	public static String folder2 = "exp/conference/references/";
+	
+	// public static String folder2_prefix = "";
+	// public static String folder2 = "exp/results/dic-new-2-p0.4/";
 	
 	
 	// public static String folder2_prefix = "AML-";
