@@ -100,8 +100,10 @@ public class LocalRockitWrapper implements RockitWrapper{
 	private HashSet<Correspondence> getCorrespondences(ArrayList<String[]> eqs) {
 		HashSet<Correspondence> correspondences = new HashSet<Correspondence>();
 		for (String[] entities : eqs) {
-			String e1 = removeSuffix(entities[0]);
-			String e2 = removeSuffix(entities[1]);
+			// String e1 = removeSuffix(entities[0]);
+			// String e2 = removeSuffix(entities[1]);
+			String e1 = entities[0];
+			String e2 = entities[1];
 			Correspondence c = new Correspondence(e1, e2);
 			correspondences.add(c);
 		}

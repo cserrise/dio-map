@@ -1,18 +1,25 @@
 package de.unima.ki.dio.matcher;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.PriorityQueue;
 
+// import org.obolibrary.oboformat.model.Clause;
 
+
+// import de.dwslab.ai.riskmanagement.abduction.existential.ExistentialAPI;
 import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.entities.*;
 import de.unima.ki.dio.exceptions.RockitException;
 import de.unima.ki.dio.matcher.alignment.Alignment;
 import de.unima.ki.dio.matcher.alignment.Correspondence;
+import de.unima.ki.dio.matcher.evidence.Clause;
 import de.unima.ki.dio.matcher.evidence.EvidenceManager;
 import de.unima.ki.dio.rockit.RockitAdapter;
 import de.unima.ki.dio.rockit.RockitResult;
@@ -41,16 +48,16 @@ public class MarkovMatcher extends Matcher {
 		this.abbreviationWSim = new AbbreviationWSim();
 		this.levenstheinWSim = new LevenstheinWSim();
 		// this.dictionaryWSim = new DictionaryMock();
-		this.dictionaryWSim = new DictCSim();
-		((DictCSim)this.dictionaryWSim).setDegree(2);
+		// this.dictionaryWSim = new DictCSim();
+		// ((DictCSim)this.dictionaryWSim).setDegree(2);
 	}
 	
 	public Alignment match(Ontology ont1, Ontology ont2) throws RockitException {
 		this.ont1 = ont1;
 		this.ont2 = ont2;
 		Alignment hypothesis = computeHypotheses();
-		//System.out.println("Hypotheses that have been computed:");
-		//System.out.println(hypothesis);
+		System.out.println("Hypotheses that have been computed:");
+		System.out.println();
 		Alignment alignment = computeAlignment(hypothesis);
 		return alignment;
 	}
@@ -99,18 +106,51 @@ public class MarkovMatcher extends Matcher {
 		catch (UnsupportedEncodingException e) {
 			throw new RockitException(RockitException.IO_ERROR, "problems with encoding", e);
 		}
-		writeEvidenceHypothesis(ont1.getEntities(), ont2.getEntities(), hypothesis);	
+		writeEvidenceHypothesis(ont1.getEntities(), ont2.getEntities(), hypothesis);
+		
+		try {
+			createExtendedModelFile(Settings.ROCKIT_MODELFILEPATH, Settings.ROCKIT_MODELFILEPATH_X);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
 		if (Settings.ENSURE_COHERENCY) {
 			writeEvidenceSemantics(ont1.getEntities(), "1");
 			writeEvidenceSemantics(ont2.getEntities(), "2");
 		}
 		EvidenceManager.write(writer);
 		writer.close();
-		RockitAdapter rockitAdapter = new RockitAdapter(Settings.ROCKIT_MODELFILEPATH, Settings.ROCKIT_EVIDENCEFILEPATH, Settings.ROCKIT_LOCALOUT);
+	
+		
+		RockitAdapter rockitAdapter = new RockitAdapter(Settings.ROCKIT_MODELFILEPATH_X, Settings.ROCKIT_EVIDENCEFILEPATH, Settings.ROCKIT_LOCALOUT);
 		Alignment alignment = rockitAdapter.runRockit();
 		
 		out.close();
 		return alignment;
+	}
+	
+	private void createExtendedModelFile(String modelFile, String extendedModelfile) throws IOException {
+		PrintWriter pw = new PrintWriter(extendedModelfile);
+		BufferedReader br = new BufferedReader(new FileReader(modelFile));
+ 
+		String line;
+		while ((line = br.readLine()) != null) {
+			pw.println(line);
+		}
+		br.close();
+ 
+		pw.println("");
+		pw.println("// *********************************");
+		pw.println("// **** automatically generated ****");
+		pw.println("// *********************************");
+		for (Clause c : EvidenceManager.getClauses()) {
+			pw.println(c);
+		}
+		
+		pw.flush();
+		pw.close();
+		
 	}
 	
 	
@@ -144,7 +184,9 @@ public class MarkovMatcher extends Matcher {
 		for (Entity e1 : entities) {
 			touched.add(e1);
 			// if  (!(e1 instanceof Concept)) continue;
+			/* TODO remove the comment
 			LabelExtender.expandLabelsOfCompound(e1);
+			*/
 		}
 		
 		
@@ -190,102 +232,86 @@ public class MarkovMatcher extends Matcher {
 	* @param ontId The id of the ontology where the entities origin from
 	*/
 	private void writeEvidenceEntities(HashSet<Entity> entities, String ontId) {		
-		ArrayList<String> entityIds = new ArrayList<String>();
 		for (Entity e : entities) {
-			
+			String typePrefix = null;
 			if (e instanceof Concept) {
-				int counter = 0;
-				entityIds.clear();
-				for (Label l : e.getLabels()) {
-					int numOfWords = l.getNumberOfWords();
-					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-						counter++;
-						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
-						EvidenceManager.addGroundAtom("concept" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
-						entityIds.add(f(e, counter));
-					}
-				}
-				generateSameAsStatements(ontId, entityIds, "concept");
+				typePrefix = "concept";
 			}
-			
-			
 			if (e instanceof DataProperty) {
-				int counter = 0;
-				entityIds.clear();
-				for (Label l : e.getLabels()) {
-					// System.out.println("LABEL of data property: "  + l);
-					int numOfWords = l.getNumberOfWords();
-					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-						counter++;
-						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
-						EvidenceManager.addGroundAtom("dprop" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
-						entityIds.add(f(e, counter));
-					}
-				}
-				generateSameAsStatements(ontId, entityIds, "dprop");
-			}
-			
-			if (e instanceof ObjectProperty) {
-				int counter = 0;
-				entityIds.clear();
-				// System.out.println("Object Property: "  + e.getUri());
-				for (Label l : e.getLabels()) {
-					// System.out.println("LABEL of object property: "  + l);
-					int numOfWords = l.getNumberOfWords();
-					if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
-						counter++;
-						ArrayList<String> paramsE2W = ccc(ontId, e, counter, l);
-						EvidenceManager.addGroundAtom("oprop" + numOfWords + "Word_o" + ontId , paramsE2W.toArray(new String[paramsE2W.size()]));
-						entityIds.add(f(e, counter));
-					}
-				}
-				generateSameAsStatements(ontId, entityIds, "oprop");
-			}
-		
-		}
-	}
-
-	private void generateSameAsStatements(String ontId, ArrayList<String> entityIds, String type) {
-		for (int i = 0; i < entityIds.size(); i++) {
-			for (int j = 0; j < entityIds.size(); j++) {
-				if (i == j) continue;
-				EvidenceManager.addGroundAtom(type + "Same_o" + ontId , new String[]{entityIds.get(i), entityIds.get(j)});
+				typePrefix = "dprop";
 			}	
+			if (e instanceof ObjectProperty) {
+				typePrefix = "oprop";
+			}
+			int counter = 0;
+			for (Label l : e.getLabels()) {
+				int numOfWords = l.getNumberOfWords();
+				if (numOfWords <= Settings.MAX_NUM_OF_WORDS_IN_LABEL) {
+					counter++;
+					ArrayList<String> paramsL2W = getLabelWordsParams(ontId, e, counter, l);
+					ArrayList<String> paramsE2L = getEntityLabelParams(ontId, e, counter, l);
+					EvidenceManager.addGroundAtom(typePrefix + "L" + numOfWords + "Word_o" + ontId , paramsL2W.toArray(new String[paramsL2W.size()]));
+					EvidenceManager.addGroundAtom(typePrefix + "Label_o" + ontId , paramsE2L.toArray(new String[paramsE2L.size()]));
+				}
+			}
 		}
 	}
 
-	private  ArrayList<String> ccc(String ontId, Entity e, int counter, Label l) {
-		ArrayList<String> paramsE2W = new ArrayList<String>();
-		paramsE2W.add(f(e,counter));
-		paramsE2W.addAll(l.getMLWords(ontId));
-		return paramsE2W;
+	/**
+	* Creates and returns an array list that contains the label of an entity followed by the words of this label.
+	* 
+	* @param ontId The id of the ontology to which this entity belongs to.
+	* @param e the entity.
+	* @param counter The id of the label.
+	* @param One of the labels of the entity.
+	* @return
+	 */
+	private  ArrayList<String> getLabelWordsParams(String ontId, Entity e, int counter, Label l) {
+		ArrayList<String> paramsL2W = new ArrayList<String>();
+		paramsL2W.add(getLabelUri(e,counter));
+		paramsL2W.addAll(l.getMLWords(ontId));
+		return paramsL2W;
 	}
 	
 	/**
-	* Creates the concatenation of the URI of e followed by "?" followed by the number i. 
+	* Creates and returns an array with two elements. The first is the uri of an entity and the second
+	* the uri of a label of that entity. 
+	* 
+	* @param ontId
+	* @param e
+	* @param counter
+	* @param l
+	* @return
+	*/
+	private  ArrayList<String> getEntityLabelParams(String ontId, Entity e, int counter, Label l) {
+		ArrayList<String> paramsE2L = new ArrayList<String>();
+		paramsE2L.add(e.getUri());
+		paramsE2L.add(getLabelUri(e,counter));
+		return paramsE2L;
+	}
+	
+	
+	
+	/**
+	* Creates the concatenation of the URI of e followed by "?" followed by the number i, which is the labels of an entity.
 	* 
 	* @param e The entity.
 	* @param i The suffix number
 	* @return The new identifier for (a certain view on) the entity.
 	 */
-	private String f(Entity e, int i) {
+	private String getLabelUri(Entity e, int i) {
 		return e.getUri() + "?" + i;
 	}
 	
 	private void writeEvidenceSemantics(HashSet<Entity> entities, String ontId) {
 		for (Entity e1 : entities) {
 			if (e1 instanceof Concept) {
-				int c = 0;
-				for(Label l1 : e1.getLabels()) {
-					if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-					c++;
-					Concept e1Concept = (Concept)e1;
-					if (e1Concept.isLeafnode()) {
-						EvidenceManager.addGroundAtom("leafnode_o" + ontId, f(e1,c));
-					}
-					if (e1Concept.isRootnode()) {
-						EvidenceManager.addGroundAtom("rootnode_o" + ontId, f(e1,c));
-					}
+				Concept e1Concept = (Concept)e1;
+				if (e1Concept.isLeafnode()) {
+					EvidenceManager.addGroundAtom("leafnode_o" + ontId, e1.getUri());
+				}
+				if (e1Concept.isRootnode()) {
+					EvidenceManager.addGroundAtom("rootnode_o" + ontId, e1.getUri());
 				}
 			}
 			
@@ -293,128 +319,120 @@ public class MarkovMatcher extends Matcher {
 			for (Entity e2 : entities) {
 				// concept hierarchy and disjointness
 				if (e1 instanceof Concept && e2 instanceof Concept) {
-					int c1 = 0;
-					for(Label l1 : e1.getLabels()) {
-						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-						c1++;
-						int c2 = 0;
-						for(Label l2 : e2.getLabels()) {	
-							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-							c2++;
-							Concept e1Concept = (Concept)e1;
-							Concept e2Concept = (Concept)e2;
-							if (e1Concept.isSubConcept(e2Concept)) {
-								EvidenceManager.addGroundAtom("sub_o" + ontId, f(e1,c1), f(e2,c2));
-							}
-							if (e1Concept.isDSubConcept(e2Concept)) {
-								EvidenceManager.addGroundAtom("dsub_o" + ontId, f(e1,c1), f(e2,c2));
-							}
-							if (e1Concept.isDisjoint(e2Concept)) {
-								EvidenceManager.addGroundAtom("dis_o" + ontId, f(e1,c1), f(e2,c2));
-							}
-						}
+
+					Concept e1Concept = (Concept)e1;
+					Concept e2Concept = (Concept)e2;
+					if (e1Concept.isSubConcept(e2Concept)) {
+						EvidenceManager.addGroundAtom("sub_o" + ontId, e1.getUri(), e2.getUri());
 					}
+					if (e1Concept.isDSubConcept(e2Concept)) {
+						EvidenceManager.addGroundAtom("dsub_o" + ontId, e1.getUri(), e2.getUri());
+					}
+					if (e1Concept.isDisjoint(e2Concept)) {
+						EvidenceManager.addGroundAtom("dis_o" + ontId,  e1.getUri(), e2.getUri());
+					}
+					
 				}
 				// domain and range of object properties
 				if (e1 instanceof ObjectProperty && e2 instanceof Concept) {
-					int c1 = 0;
-					for(Label l1 : e1.getLabels()) {
-						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-						c1++;
-						int c2 = 0;
-						for(Label l2 : e2.getLabels()) {	
-							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-							c2++;
-							ObjectProperty e1Property = (ObjectProperty)e1;
-							Concept e2Concept = (Concept)e2;
-							HashSet<Concept> domainConcepts = e1Property.getDomainConcept();
-							for (Concept domainConcept : domainConcepts) {
-								if (domainConcept.equals(e2Concept)) {
-									EvidenceManager.addGroundAtom("opropDom_o" + ontId, f(e1,c1), f(e2,c2));
-								}
-							}
-							HashSet<Concept> rangeConcepts = e1Property.getRangeConcept();
-							for (Concept rangeConcept : rangeConcepts) {
-								if (rangeConcept.equals(e2Concept)) {
-									EvidenceManager.addGroundAtom("opropRan_o" + ontId, f(e1,c1), f(e2,c2));
-								}
-							}
+					ObjectProperty e1Property = (ObjectProperty)e1;
+					Concept e2Concept = (Concept)e2;
+					HashSet<Concept> domainConcepts = e1Property.getDomainConcept();
+					for (Concept domainConcept : domainConcepts) {
+						if (domainConcept.equals(e2Concept)) {
+							EvidenceManager.addGroundAtom("opropDom_o" + ontId,  e1.getUri(), e2.getUri());
+						}
+					}
+					HashSet<Concept> rangeConcepts = e1Property.getRangeConcept();
+					for (Concept rangeConcept : rangeConcepts) {
+						if (rangeConcept.equals(e2Concept)) {
+							EvidenceManager.addGroundAtom("opropRan_o" + ontId, e1.getUri(), e2.getUri());
 						}
 					}
 				}
 				// domain of data properties
-				if (e1 instanceof DataProperty && e2 instanceof Concept) {
-					int c1 = 0;
-					for(Label l1 : e1.getLabels()) {
-						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-						c1++;
-						int c2 = 0;
-						for(Label l2 : e2.getLabels()) {	
-							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-							c2++;
-							DataProperty e1Property = (DataProperty)e1;
-							Concept e2Concept = (Concept)e2;
-							HashSet<Concept> domainConcepts = e1Property.getDomainConcept();
-							for (Concept domainConcept : domainConcepts) {
-								if (domainConcept.equals(e2Concept)) {
-									EvidenceManager.addGroundAtom("dpropDom_o" + ontId, f(e1,c1), f(e2,c2));
-								}
-							}
+				if (e1 instanceof DataProperty && e2 instanceof Concept) {	
+					DataProperty e1Property = (DataProperty)e1;
+					Concept e2Concept = (Concept)e2;
+					HashSet<Concept> domainConcepts = e1Property.getDomainConcept();
+					for (Concept domainConcept : domainConcepts) {
+						if (domainConcept.equals(e2Concept)) {
+							EvidenceManager.addGroundAtom("dpropDom_o" + ontId,  e1.getUri(), e2.getUri());
 						}
 					}
 				}
 				if (e1 instanceof ObjectProperty && e2 instanceof ObjectProperty) {
-					int c1 = 0;
-					for(Label l1 : e1.getLabels()) {
-						if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-						c1++;
-						int c2 = 0;
-						for(Label l2 : e2.getLabels()) {	
-							if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-							c2++;
-							ObjectProperty e1Property = (ObjectProperty)e1;
-							ObjectProperty e2Property = (ObjectProperty)e2;
-							if (e1Property.getInverse() != null ) {
-								if (e1Property.getInverse().equals(e2Property)) {
-									EvidenceManager.addGroundAtom("opropInv_o" + ontId, f(e1,c1), f(e2,c2));
-								}
-							}
-
+					ObjectProperty e1Property = (ObjectProperty)e1;
+					ObjectProperty e2Property = (ObjectProperty)e2;
+					if (e1Property.getInverse() != null ) {
+						if (e1Property.getInverse().equals(e2Property)) {
+							EvidenceManager.addGroundAtom("opropInv_o" + ontId,  e1.getUri(), e2.getUri());
 						}
 					}
 				}
-				
 			}
 		}		
 	}
-	
 
 	
 	private void writeEvidenceHypothesis(HashSet<Entity> entities1, HashSet<Entity> entities2, Alignment hypothesis) {
+		int counter = 0;
 		for (Entity e1 : entities1) {
-			if (e1 instanceof Concept) {
-				for (Entity e2 : entities2) {
-					if (e2 instanceof Concept) {
-						Correspondence temp = new Correspondence(e1.getUri(), e2.getUri());
-						if (!hypothesis.contained(temp)) {
-							int c1 = 0;
-							for(Label l1 : e1.getLabels()) {
-								if (l1.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-								c1++;
-								int c2 = 0;
-								for(Label l2 : e2.getLabels()) {	
-									if (l2.getNumberOfWords() > Settings.MAX_NUM_OF_WORDS_IN_LABEL) continue;
-									c2++;
-									EvidenceManager.addGroundAtom("!conceptEQ", f(e1,c1), f(e2,c2));
-								}
-							}
-						}
-					}
+			for (Entity e2 : entities2) {
+				String type = null;
+				if (e1 instanceof Concept && e2 instanceof Concept) { type = "concept"; }
+				if (e1 instanceof DataProperty && e2 instanceof DataProperty) { type = "dprop"; }
+				if (e1 instanceof ObjectProperty && e2 instanceof ObjectProperty) {
+					type = "oprop";
 				}
+				if (type == null) {
+					continue;
+				}
+
+				Correspondence temp = new Correspondence(e1.getUri(), e2.getUri());
+				if (!hypothesis.contained(temp)) {
+					EvidenceManager.addGroundAtom("!" + type + "EQ", e1.getUri(), e2.getUri());
+				}
+				else {
+					// !conceptEQ(x, y) v conceptLabelEQ(l1X, l1Y) v conceptLabelEQ(l1X, l2Y) v conceptLabelEQ(l2X, l1Y) v conceptLabelEQ(l1X, l2Y).
+					// transformed to the following three lines
+					// !conceptEQ(x, y) v conceptEQxxx(x, l1Y) v conceptEQxxx(x, l1Y).
+					// !conceptEQxxx(x, l1Y) v conceptLabelEQ(l1X, l1Y) v conceptLabelEQ(l2X, l1Y).
+					// !conceptEQxxx(x, l2Y) v conceptLabelEQ(l1X, l2Y) v conceptLabelEQ(l2X, l2Y).
+					
+					Clause clause = new Clause();
+					clause.addLiteral("!" + type + "EQ", e1.getUri(), e2.getUri());
+					// if (e1.getLabels().size() * e2.getLabels().size() > 8) {
+					// 	continue;
+					// }
+					int c1 = 0;
+					
+					for (Label l1 : e1.getLabels()) {
+						c1++;
+						clause.addLiteral(type + "EQxxx", getLabelUri(e1, c1), e2.getUri());
+						Clause xclause = new Clause();
+						xclause.addLiteral("!" + type + "EQxxx", getLabelUri(e1, c1), e2.getUri());
+						int c2 = 0;
+						for (Label l2 : e2.getLabels()) {
+							c2++;
+							counter++;
+							xclause.addLiteral(type + "LabelEQ", getLabelUri(e1, c1), getLabelUri(e2, c2));
+							// System.out.println("... " + counter);
+						}
+						EvidenceManager.addClause(xclause);
+						
+					}
+					EvidenceManager.addClause(clause);		
+					EvidenceManager.addClause(new Clause()); // empty clause, just for formating the output	
+				}	
 			}
+
 		}
-		
 	}
+	
+	
+	
+	
 
 	
 	private void writeEvidenceWordSimilarity(String ont1Id, String ont2Id) {
@@ -439,9 +457,9 @@ public class MarkovMatcher extends Matcher {
 				if (!(w1.getPrefix().equals(w2.getPrefix()))) continue;
 				double lsim = this.levenstheinWSim.getSimilarity(w1, w2);
 				double dsim = this.discoWSim.getSimilarity(w1, w2);
-				double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
+				// double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
 				double asim = this. abbreviationWSim.getSimilarity(w1, w2);
-				double sim = Math.max(Math.max(lsim, Math.max(dsim,dicsim)), asim);
+				double sim = Math.max(Math.max(lsim, dsim), asim);
 				// if (show) System.out.println(sim + ": " + w1 + " | " + w2);
 				if (sim > 0) {
 					q.add(sim);
@@ -456,9 +474,9 @@ public class MarkovMatcher extends Matcher {
 				if (!(w1.getPrefix().equals(w2.getPrefix()))) continue;
 				double lsim = this.levenstheinWSim.getSimilarity(w1, w2);
 				double dsim = this.discoWSim.getSimilarity(w1, w2);
-				double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
+				// double dicsim = this.dictionaryWSim.getSimilarity(w1, w2);
 				double asim = this. abbreviationWSim.getSimilarity(w1, w2);
-				double sim = Math.max(Math.max(lsim, Math.max(dsim,dicsim)), asim);
+				double sim = Math.max(Math.max(lsim, dsim), asim);
 
 				if (sim < 0.99 ) {
 					if (this.ont1.haveDifferentMeaning(w1.getToken(), w2.getToken()) || this.ont2.haveDifferentMeaning(w1.getToken(), w2.getToken())) {

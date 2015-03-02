@@ -15,7 +15,7 @@ public class ConferenceMarkov {
 	
 	private static String ontPath = "exp/conference/ontologies/";
 	private static String refXPath = "exp/conference/references/";
-	private static String outputPath = "exp/results/dic-new-2-p0.4/";
+	private static String outputPath = "exp/results/black-1/";
 	
 	public static void main(String[] args) throws DioException {
 		
@@ -24,17 +24,14 @@ public class ConferenceMarkov {
 		// 2a: the problem with the non existing labels
 		// 2b: the problem 
 		
-		
-		
 		/*
 		String[] ontIds = {
 				"cmt",
-				"confOf"
+				"conference",
+				// "confof",
+				// "edas"
 		};
 		*/
-		
-		
-		
 		
 		
 		
@@ -48,19 +45,7 @@ public class ConferenceMarkov {
 			"sigkdd"
 		};
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+			
 		
 		String refp = Settings.ROCKIT_EVIDENCEFILEPATH;
 		for (int i = 0; i < ontIds.length - 1; i++) {

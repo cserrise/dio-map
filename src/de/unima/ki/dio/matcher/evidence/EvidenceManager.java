@@ -12,11 +12,13 @@ public class EvidenceManager {
 	
 	private static HashMap<String, ArrayList<String[]>> groundAtoms = new HashMap<String, ArrayList<String[]>>();
 	private static HashMap<String, ArrayList<String[]>> groundAtomsWeighted = new HashMap<String, ArrayList<String[]>>();
+	private static ArrayList<Clause> clauses = new ArrayList<Clause>();
 
 	
 	public static void clear() {
 		groundAtoms.clear();
 		groundAtomsWeighted.clear();
+		clauses.clear();
 	}
 	
 	
@@ -76,7 +78,7 @@ public class EvidenceManager {
 	}
 	
 	
-	private static String getGroundAtom(String predicate, String ... args) {
+	protected static String getGroundAtom(String predicate, String ... args) {
 		String s = predicate;
 		s += "(";
 		for (int i = 0; i < args.length - 1; i++) {
@@ -89,7 +91,7 @@ public class EvidenceManager {
 	
 	
 	
-	private static String getGroundAtomWeighted(String predicate, String ... args) {
+	protected static String getGroundAtomWeighted(String predicate, String ... args) {
 		String s = predicate;
 		s += "(";
 		for (int i = 0; i < args.length - 1; i++) {
@@ -137,6 +139,25 @@ public class EvidenceManager {
 		double nsim = sim * span;
 		nsim += lowerBound;
 		return nsim;
+	}
+
+
+	public static void addClause(Clause clause) {
+		clauses.add(clause);
+		
+	}
+	
+	public static void showClauses() {
+		for(Clause c : clauses) {
+			System.out.println(c);
+		}
+		
+		
+	}
+
+
+	public static ArrayList<Clause> getClauses() {
+		return clauses;
 	}
 	
 
