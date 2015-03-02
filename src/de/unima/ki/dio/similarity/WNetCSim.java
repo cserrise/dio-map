@@ -23,10 +23,10 @@ import edu.mit.jwi.item.POS;
 import edu.mit.jwi.morph.WordnetStemmer;
 
 public class WNetCSim implements WordSimilarity, CompoundOracle {
-	
+
 	private final String wnDir = Settings.WORDNET_DIRECTORY;
 	private final IRAMDictionary dict = new RAMDictionary(new File(wnDir) , ILoadPolicy.NO_LOAD);
-	
+
 	private int degree = 2;
 	private boolean includePrevious = true;
 	private boolean simOnlyForDegree = true;
@@ -38,7 +38,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public boolean isKnownCompound(Label l) {
 		if(l.getNumberOfWords() >= 2 && dict.getIndexWord(l.toSpacedString(), POS.NOUN) != null){
@@ -69,10 +69,10 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 			return 0d;
 		}
 		double bestSim = 0;
-		
+
 		ArrayList<HashSet<ISynsetID>> list1 = new ArrayList<HashSet<ISynsetID>>();
 		ArrayList<HashSet<ISynsetID>> list2 = new ArrayList<HashSet<ISynsetID>>();
-		
+
 		HashSet<ISynsetID> setForW1 = new HashSet<ISynsetID>();
 		HashSet<ISynsetID> setForW2 = new HashSet<ISynsetID>();
 		setForW1.addAll(this.getSynsetIDsForWord(w1));
@@ -80,11 +80,11 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 
 		list1.add(setForW1);
 		list2.add(setForW2);
-		
+
 		for(int i = 1; i < this.degree; i++){
 			HashSet<ISynsetID> set1 = new HashSet<ISynsetID>();
 			HashSet<ISynsetID> set2 = new HashSet<ISynsetID>();
-			
+
 			for(ISynsetID id1:setForW1){
 				List<IWord> words1 = this.getWordsFromSynset(this.getSynsetForSynsetID(id1));
 				for(IWord word1:words1){
@@ -94,7 +94,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 					}
 				}
 			}
-			
+
 			for(ISynsetID id2:setForW2){
 				List<IWord> words2 = this.getWordsFromSynset(this.getSynsetForSynsetID(id2));
 				for(IWord word2:words2){
@@ -114,7 +114,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 			}
 			list1.add(set1);
 			list2.add(set2);
-			
+
 			setForW1 = set1;
 			setForW2 = set2;
 		}
@@ -122,30 +122,30 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 			bestSim = compare(list1.get(list1.size()-1),list2.get(list2.size()-1));
 		}else{
 			for(HashSet<ISynsetID>set1:list1){
-				for(HashSet<ISynsetID>set2:list2){	
+				for(HashSet<ISynsetID>set2:list2){
 					bestSim = Math.max(bestSim, compare(set1,set2));
 				}
 			}
 		}
-		
-		
-		
+
+
+
 		return bestSim;
 	}
-	
+
 	private double compare(HashSet<ISynsetID> set1, HashSet<ISynsetID> set2){
 		final int terms1 = set1.size();
 		final int terms2 = set2.size();
-		
+
 		final HashSet<ISynsetID> allTokens = new HashSet<ISynsetID>();
 		allTokens.addAll(set1);
 		allTokens.addAll(set2);
-		
+
 		final int commonTerms = (terms1 + terms2) - allTokens.size();
 		double sim = (double) (commonTerms) / (double) (Math.pow((double) terms1, 0.5f) * Math.pow((double) terms2, 0.5f));
 		return sim;
 	}
-	
+
 	private List<ISynsetID> getSynsetIDsForWord(String word){
 		List<ISynsetID> list = new ArrayList<ISynsetID>();
 		IIndexWord idxWord = dict.getIndexWord(word, POS.NOUN);
@@ -157,11 +157,11 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 		}
 		return list;
 	}
-	
+
 	private ISynset getSynsetForSynsetID(ISynsetID id){
 		return dict.getSynset(id);
 	}
-	
+
 	private List<IWord> getWordsFromSynset(ISynset synset){
 		List<IWord> list = new ArrayList<IWord>();
 		for(IWord word:synset.getWords()){
@@ -169,7 +169,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 		}
 		return list;
 	}
-	
+
 	public int getDegree() {
 		return degree;
 	}
@@ -196,11 +196,9 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 
 	public static void main(String[] args){
 		WNetCSim sim = new WNetCSim();
-		// String[] words = new String[]{"program commitee", "session chair", "subject area", "topic", "last name", "surname", "first name", "chair","reviewed", "participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","contribution"};
-		// String[] words = new String[]{"subject area", "topic"};
-		
+//		String[] words = new String[]{"program commitee", "session chair", "subject area", "topic", "last name", "surname", "first name", "chair","reviewed", "participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","contribution"};
 		String[] words = new String[]{"institution", "organization", "chairman", "chair", "surname", "last name", "evaluated", "reviewed"};
-		
+
 		DecimalFormat df2 = new DecimalFormat( "0.000" );
 		for (int i = 0 ; i < words.length-1; i++) {
 			for (int j = i+1 ; j < words.length; j++) {
@@ -220,7 +218,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 				System.out.print("\t" + df2.format(sim.getSimilarity(word, word2)));
 				System.out.println();
 			}
-			
+
 		}
 	}
 
