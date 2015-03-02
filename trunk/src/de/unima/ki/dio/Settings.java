@@ -21,9 +21,10 @@ public class Settings {
 	// is the following one the really learge one?
 	public static String DISCO_DIRECTORY = DISCO_DIRECTORY_WIKI;
 	
-	// the MOST IMPORTANT params are insed the model
-	public static final String ROCKIT_MODELFILEPATH            = "mod/mod_simple_strict.ml";
-	public static final String ROCKIT_MODELFILEPATH_HYPOTHESIS = "mod/mod_simple_strict_reversed.ml";
+	// the MOST IMPORTANT params are inside the model file
+	public static final String ROCKIT_MODELFILEPATH            = "mod/mod_3layer.ml";
+	public static final String ROCKIT_MODELFILEPATH_X          = "mod/mod_3layer_x.ml";
+	public static final String ROCKIT_MODELFILEPATH_HYPOTHESIS = "mod/mod_3layer_reversed.ml";
 	// public static final String ROCKIT_MODELFILEPATH = "mod/model_beta2.ml";
 	
 	// similarity thresholds

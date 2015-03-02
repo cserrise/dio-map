@@ -49,6 +49,7 @@ public class LabelExtender {
 	public static void expandLabelsOfCompound(Entity e) {
 		HashSet<Label> additionalLabels = new HashSet<Label>();
 		// create new labels
+
 		for (Label label  : e.getLabels()) {
 			if (co.isKnownCompound(label)) {
 				String compoundToken = label.getWord(0).getToken();
@@ -59,7 +60,7 @@ public class LabelExtender {
 				if (e instanceof DataProperty) prefix = "D";
 				if (e instanceof ObjectProperty) prefix = "O";
 				Word w = Word.createWord(prefix, compoundToken, WordType.UNKNOWN);
-				System.out.println("Created and added compound: " + w);
+				//System.out.println("Created and added compound: " + w);
 				
 				Label labelCompound = new Label(w);
 				additionalLabels.add(labelCompound);
@@ -72,6 +73,7 @@ public class LabelExtender {
 			additionalLabel.addEntity(e);
 			e.addLabel(additionalLabel);
 		}
+		
 	}
 	
 	public static void addSimplifiedLabel(Entity e) {

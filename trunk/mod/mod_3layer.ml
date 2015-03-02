@@ -96,6 +96,11 @@ conceptEQ(Concept1, Concept2)
 dpropEQ(DProp1, DProp2)
 opropEQ(OProp1, OProp2)
 
+// helper construct required because of a bug in rockit
+conceptEQxxx(ConceptLabel1, Concept2)
+dpropEQxxx(DPropLabel1, DProp2)
+opropEQxxx(OPropLabel1, OProp2)
+
 // special helper construct
 opropInvEQ(OProp1)
 
@@ -112,7 +117,7 @@ conceptEQIgnored(Concept1, Concept2)
 // mappings between labels
 conceptLabelEQ(ConceptLabel1, ConceptLabel2)
 dpropLabelEQ(DPropLabel1, DPropLabel2)
-dpropLabelEQ(OPropLabel1, OPropLabel2)
+opropLabelEQ(OPropLabel1, OPropLabel2)
 
 // ignoring single words
 conceptWordIgnore_o1(ConceptWord1)
@@ -196,18 +201,8 @@ sim: !opropWordSim(w1, w2, sim) v opropWordEQ(w1,w2)
 // the more complex one (ConferencePaper = Paper), even though the modifier might be already "ignored"
 -0.01 conceptEQIgnored(e_o1, e_o2)
 
-// ************************************************************
-// ********* relation between entities and labels *************
-// ************************************************************
 
-// HERE IS WHERE THE RUBBER HITS THE ROAD
 
-// --- do not remove the following three lines ---
-// this line is converted to a set of fomulae that corresponds to an existential quantified formula
-
-// ? !conceptEQ(e_o1, e_o2) v conceptLabelEQ([conceptLabel_o1(e_o1,?)], [conceptLabel_o2(e_o2,?)])
-// ? !dpropEQ(e_o1, e_o2) v dpropLabelEQ([dpropLabel_o1(e_o1,?)], [dpropLabel_o2(e_o2,?)])
-// ? !opropEQ(e_o1, e_o2) v opropLabelEQ([opropLabel_o1(e_o1,?)], [opropLabel_o2(e_o2,?)])
 
 // ************************************************************
 // ********* relation between words and labels ****************
@@ -226,7 +221,7 @@ sim: !opropWordSim(w1, w2, sim) v opropWordEQ(w1,w2)
 !dpropL1Word_o1(e_o1, x) v !dpropL0Word_o2(e_o2) v !dpropLabelEQ(e_o1, e_o2).
 !opropL1Word_o1(e_o1, x) v !opropL0Word_o2(e_o2) v !opropLabelEQ(e_o1, e_o2).
 
-!conceptL0Word_o1(e_o1) v !conceptL2Word_o2(e_o2, x,y) v !conceptEQ(e_o1, e_o2).
+!conceptL0Word_o1(e_o1) v !conceptL2Word_o2(e_o2, x,y) v !conceptLabelEQ(e_o1, e_o2).
 !dpropL0Word_o1(e_o1) v !dpropL2Word_o2(e_o2, x,y) v !dpropLabelEQ(e_o1, e_o2).
 !opropL0Word_o1(e_o1) v !opropL2Word_o2(e_o2, x,y) v !opropLabelEQ(e_o1, e_o2).
 
@@ -372,6 +367,8 @@ sim: !opropWordSim(w1, w2, sim) v opropWordEQ(w1,w2)
 // forbids SUB od SUP mappings if there is not a subsumption
 // relationship under the assumption that an EQ mapping is given
 // are these formulae required ? at least they do no hurt
+
+
 !conceptEQ(e1_o1, e_o2) v sub_o1(e1_o1, e2_o1) v !conceptSUP(e2_o1, e_o2).
 !conceptEQ(e2_o1, e_o2) v sub_o1(e1_o1, e2_o1) v !conceptSUB(e1_o1, e_o2).
 !conceptEQ(e_o1, e1_o2) v sub_o2(e1_o2, e2_o2) v !conceptSUB(e_o1, e2_o2).
@@ -402,4 +399,21 @@ sim: !opropWordSim(w1, w2, sim) v opropWordEQ(w1,w2)
 
 |p_o1| opropEQ(p_o1,p_o2) <= 1
 |p_o2| opropEQ(p_o1,p_o2) <= 1
+
+
+// ************************************************************
+// ********* relation between entities and labels *************
+// ************************************************************
+
+// !conceptEQ(x, y) v conceptLabelEQ(l1X, l1Y) v conceptLabelEQ(l1X, l2Y) v conceptLabelEQ(l2X, l1Y) v conceptLabelEQ(l1X, l2Y).
+// transformed to the following three lines
+// !conceptEQ(x, y) v conceptLabelEQxxx(x, l1Y) v conceptLabelEQxxx(x, l1Y).
+// !conceptLabelEQxxx(x, l1Y) v conceptLabelEQ(l1X, l1Y) v conceptLabelEQ(l2X, l1Y).
+// !conceptLabelEQxxx(x, l2Y) v conceptLabelEQ(l1X, l2Y) v conceptLabelEQ(l2X, l2Y).
+// the same for dprop and oprop 
+
+
+
+
+
 

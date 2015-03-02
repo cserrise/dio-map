@@ -68,7 +68,7 @@ opropEQ(OProp1, OProp2)
 // mappings between labels
 conceptLabelEQ(ConceptLabel1, ConceptLabel2)
 dpropLabelEQ(DPropLabel1, DPropLabel2)
-dpropLabelEQ(OPropLabel1, OPropLabel2)
+opropLabelEQ(OPropLabel1, OPropLabel2)
 
 // simple words that have the same meaning
 conceptWordEQ(ConceptWord1, ConceptWord2)
@@ -100,14 +100,14 @@ sim: !opropWordSim(w1, w2, sim) v opropWordEQ(w1,w2)
 
 // *** a matched label results in a matched entity ***
 
-!conceptLabelEQ(l_o1, l_o2) v !conceptLabel_o1(e_o1, l_o1) v !conceptLabel_o2(e_o2, l_o2) v conceptEQ(e_o2, e_o1).
-!dpropLabelEQ(l_o1, l_o2) v !dpropLabel_o1(e_o1, l_o1) v !dpropLabel_o2(e_o2, l_o2) v dpropEQ(e_o2, e_o1).
-!opropLabelEQ(l_o1, l_o2) v !opropLabel_o1(e_o1, l_o1) v !opropLabel_o2(e_o2, l_o2) v opropEQ(e_o2, e_o1).
+!conceptLabelEQ(l_o1, l_o2) v !conceptLabel_o1(e_o1, l_o1) v !conceptLabel_o2(e_o2, l_o2) v conceptEQ(e_o1, e_o2).
+!dpropLabelEQ(l_o1, l_o2) v !dpropLabel_o1(e_o1, l_o1) v !dpropLabel_o2(e_o2, l_o2) v dpropEQ(e_o1, e_o2).
+!opropLabelEQ(l_o1, l_o2) v !opropLabel_o1(e_o1, l_o1) v !opropLabel_o2(e_o2, l_o2) v opropEQ(e_o1, e_o2).
 
 // *** the rules for matching 1-word labels on 1-word labels ***
 
 !conceptL1Word_o1(e_o1, w_o1) v !conceptL1Word_o2(e_o2, w_o2) v !conceptWordEQ(w_o1, w_o2) v conceptLabelEQ(e_o1, e_o2). 
-!dpropL1Word_o1(e_o1, w_o1) v !dpropL1Word_o2(e_o2, w_o2) v !dpropWordEQ(w_o1, w_o2) v propLabelEQ(e_o1, e_o2).
+!dpropL1Word_o1(e_o1, w_o1) v !dpropL1Word_o2(e_o2, w_o2) v !dpropWordEQ(w_o1, w_o2) v dpropLabelEQ(e_o1, e_o2).
 !opropL1Word_o1(e_o1, w_o1) v !opropL1Word_o2(e_o2, w_o2) v !opropWordEQ(w_o1, w_o2) v opropLabelEQ(e_o1, e_o2).
 
 // *** the rules for matching 2-word labels on 2-word labels ***
