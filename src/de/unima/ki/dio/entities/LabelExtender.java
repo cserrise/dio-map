@@ -3,6 +3,7 @@ package de.unima.ki.dio.entities;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.similarity.CompoundOracle;
 import de.unima.ki.dio.similarity.DictCSim;
 import de.unima.ki.dio.similarity.DictionaryMock;
@@ -23,7 +24,7 @@ public class LabelExtender {
 	};
 	
 	
-	private static CompoundOracle co = new DictCSim();
+	private static CompoundOracle co = Settings.COMPOUND_ORACLE;
 	
 	public static void addLabelsForInverseProperties(Entity e1, Entity e2) {
 		//System.out.println("INVERSE (before extension):");
@@ -60,7 +61,7 @@ public class LabelExtender {
 				if (e instanceof DataProperty) prefix = "D";
 				if (e instanceof ObjectProperty) prefix = "O";
 				Word w = Word.createWord(prefix, compoundToken, WordType.UNKNOWN);
-				//System.out.println("Created and added compound: " + w);
+				System.out.println("Created and added compound: " + w);
 				
 				Label labelCompound = new Label(w);
 				additionalLabels.add(labelCompound);

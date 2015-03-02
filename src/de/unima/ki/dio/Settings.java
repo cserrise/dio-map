@@ -1,5 +1,8 @@
 package de.unima.ki.dio;
 
+import de.unima.ki.dio.similarity.CompoundOracle;
+import de.unima.ki.dio.similarity.WNetCSim;
+
 public class Settings {
 	
 	/**
@@ -15,6 +18,10 @@ public class Settings {
 	
 	public static final String DISCO_DIRECTORY_BNC = "res/en-BNC-20080721/";
 	public static final String DISCO_DIRECTORY_WIKI = "res/enwiki-20130403-sim-lemma-mwl-lc/";
+	
+	public static final String WORDNET_DIRECTORY = "nlp/wn3.1.dict/dict";
+	
+	public static final CompoundOracle COMPOUND_ORACLE = new WNetCSim();
 	
 	
 	// public static final String DISCO_DIRECTORY = "res/enwiki-20130403-sim-lemma-mwl-lc/";

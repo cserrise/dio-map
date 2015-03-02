@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.unima.ki.dio.Settings;
 import de.unima.ki.dio.entities.Label;
 import de.unima.ki.dio.entities.Word;
 import edu.mit.jwi.IRAMDictionary;
@@ -23,7 +24,7 @@ import edu.mit.jwi.morph.WordnetStemmer;
 
 public class WNetCSim implements WordSimilarity, CompoundOracle {
 	
-	private final String wnDir = "nlp/wn3.1.dict/dict";
+	private final String wnDir = Settings.WORDNET_DIRECTORY;
 	private final IRAMDictionary dict = new RAMDictionary(new File(wnDir) , ILoadPolicy.NO_LOAD);
 	
 	private int degree = 2;
@@ -54,6 +55,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 
 	@Override
 	public double getSimilarity(String w1, String w2) {
+		if (w1.equals(w2)) { return 1.0; }
 		WordnetStemmer stemmer = new WordnetStemmer(dict);
 		List<String> l1 = stemmer.findStems(w1, null);
 		List<String> l2 = stemmer.findStems(w2, null);
@@ -194,8 +196,10 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 
 	public static void main(String[] args){
 		WNetCSim sim = new WNetCSim();
-		String[] words = new String[]{"program commitee", "session chair", "subject area", "topic", "last name", "surname", "first name", "chair","reviewed", "participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","contribution"};
-//		String[] words = new String[]{"subject area", "topic"};
+		// String[] words = new String[]{"program commitee", "session chair", "subject area", "topic", "last name", "surname", "first name", "chair","reviewed", "participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","contribution"};
+		// String[] words = new String[]{"subject area", "topic"};
+		
+		String[] words = new String[]{"institution", "organization", "chairman", "chair", "surname", "last name", "evaluated", "reviewed"};
 		
 		DecimalFormat df2 = new DecimalFormat( "0.000" );
 		for (int i = 0 ; i < words.length-1; i++) {
