@@ -78,6 +78,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 		setForW1.addAll(this.getSynsetIDsForWord(w1));
 		setForW2.addAll(this.getSynsetIDsForWord(w2));
 
+		
 		list1.add(setForW1);
 		list2.add(setForW2);
 
@@ -134,14 +135,27 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 	}
 
 	private double compare(HashSet<ISynsetID> set1, HashSet<ISynsetID> set2){
+		
+		
+		
 		final int terms1 = set1.size();
 		final int terms2 = set2.size();
 
+
+		
 		final HashSet<ISynsetID> allTokens = new HashSet<ISynsetID>();
 		allTokens.addAll(set1);
 		allTokens.addAll(set2);
 
 		final int commonTerms = (terms1 + terms2) - allTokens.size();
+		/*
+		System.out.println("");
+		System.out.println("Set for word 1 = " + set1.size()  + ": " + set1 + ">>>");
+		System.out.println("Set for word 2 = " + set2.size()  + ": " + set2 + ">>>");
+		System.out.println("Common " + commonTerms);
+		System.out.println();
+		*/
+		
 		double sim = (double) (commonTerms) / (double) (Math.pow((double) terms1, 0.5f) * Math.pow((double) terms2, 0.5f));
 		return sim;
 	}
@@ -196,8 +210,7 @@ public class WNetCSim implements WordSimilarity, CompoundOracle {
 
 	public static void main(String[] args){
 		WNetCSim sim = new WNetCSim();
-//		String[] words = new String[]{"program commitee", "session chair", "subject area", "topic", "last name", "surname", "first name", "chair","reviewed", "participant","evaluated","paper","conference","session","submitted","accepted","fee","member","event","contribution"};
-		String[] words = new String[]{"institution", "organization", "chairman", "chair", "surname", "last name", "evaluated", "reviewed"};
+		String[] words = new String[]{"participant", "attendee"};
 
 		DecimalFormat df2 = new DecimalFormat( "0.000" );
 		for (int i = 0 ; i < words.length-1; i++) {
