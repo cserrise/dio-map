@@ -1,5 +1,6 @@
 package de.unima.ki.dio;
 
+import de.unima.ki.dio.similarity.CombinedCSim;
 import de.unima.ki.dio.similarity.CompoundOracle;
 import de.unima.ki.dio.similarity.WNetCSim;
 

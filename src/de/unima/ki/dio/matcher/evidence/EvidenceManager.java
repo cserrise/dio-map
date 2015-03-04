@@ -1,6 +1,8 @@
 package de.unima.ki.dio.matcher.evidence;
 
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,14 +17,27 @@ public class EvidenceManager {
 	private static ArrayList<Clause> clauses = new ArrayList<Clause>();
 
 	
+	private static DecimalFormat df2;
+
+	static {
+		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance();
+		dfs.setDecimalSeparator('.');
+		df2 = new DecimalFormat("0.000000", dfs);	
+	}
+	
+	
 	public static void clear() {
 		groundAtoms.clear();
 		groundAtomsWeighted.clear();
 		clauses.clear();
+
+		
 	}
 	
 	
 	public static void write(PrintWriter writer) {		
+
+		
 		Set<String> predicates = groundAtoms.keySet();
 		for (String predicate : predicates) {
 			writer.println("// *** " + predicate + " **** ");
@@ -97,7 +112,7 @@ public class EvidenceManager {
 		for (int i = 0; i < args.length - 1; i++) {
 			s += "\"" + args[i] + "\", ";
 		}
-		s += normalize(args[args.length-1]);
+		s += df2.format(normalize(args[args.length-1]));
 		s += ")";
 		return s;
 	}
