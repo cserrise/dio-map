@@ -60,11 +60,13 @@ public class DictCSim implements WordSimilarity, CompoundOracle {
 			}
 		}
 		if(vector1.size() == 0 || vector2.size() == 0) return 0d;
-		
+
+		/*
 		System.out.println("Word 1 = " + w1);
 		System.out.println(vector1);
 		System.out.println("Word 2 = " + w2);
 		System.out.println(vector2);
+		*/
 		
 		final int termsInString1 = vector1.size();
 		final int termsInString2 = vector2.size();
